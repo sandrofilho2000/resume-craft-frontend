@@ -1,0 +1,341 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Curriculum Builder - Dark Glassmorphism + Neomorphism Design System */
+
+@layer base {
+  :root {
+    --background: 230 25% 5%;
+    --foreground: 210 40% 98%;
+
+    --card: 230 20% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 230 25% 7%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 175 70% 45%;
+    --primary-foreground: 230 25% 5%;
+
+    --secondary: 230 20% 12%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 230 15% 15%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 175 70% 40%;
+    --accent-foreground: 230 25% 5%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 230 15% 18%;
+    --input: 230 20% 12%;
+    --ring: 175 70% 45%;
+
+    --radius: 0.75rem;
+
+    /* Glass effect colors */
+    --glass-bg: 230 20% 10% / 0.6;
+    --glass-border: 230 15% 25% / 0.3;
+    --glass-highlight: 210 40% 98% / 0.05;
+
+    /* Neo shadows */
+    --neo-shadow-dark: 230 30% 3%;
+    --neo-shadow-light: 230 15% 15%;
+    --neo-inset-dark: 230 30% 4%;
+    --neo-inset-light: 230 15% 12%;
+
+    /* Gradient accents */
+    --gradient-primary: linear-gradient(135deg, hsl(175 70% 45%), hsl(190 80% 50%));
+    --gradient-subtle: linear-gradient(135deg, hsl(230 20% 10%), hsl(230 25% 8%));
+
+    --sidebar-background: 230 25% 6%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 175 70% 45%;
+    --sidebar-primary-foreground: 230 25% 5%;
+    --sidebar-accent: 230 20% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 230 15% 15%;
+    --sidebar-ring: 175 70% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+}
+
+@layer components {
+  /* Glassmorphism card */
+  .glass-card {
+    @apply relative overflow-hidden rounded-xl;
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: 
+      0 8px 32px hsl(230 30% 3% / 0.4),
+      inset 0 1px 0 hsl(var(--glass-highlight));
+  }
+
+  .glass-card-subtle {
+    @apply relative overflow-hidden rounded-lg;
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  /* Neomorphic button */
+  .neo-button {
+    @apply relative px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    background: linear-gradient(145deg, hsl(230 20% 14%), hsl(230 20% 10%));
+    box-shadow: 
+      4px 4px 8px hsl(var(--neo-shadow-dark)),
+      -2px -2px 6px hsl(var(--neo-shadow-light)),
+      inset 0 1px 0 hsl(210 40% 98% / 0.05);
+  }
+
+  .neo-button:hover {
+    background: linear-gradient(145deg, hsl(230 20% 16%), hsl(230 20% 12%));
+    box-shadow: 
+      6px 6px 12px hsl(var(--neo-shadow-dark)),
+      -3px -3px 8px hsl(var(--neo-shadow-light)),
+      inset 0 1px 0 hsl(210 40% 98% / 0.08);
+  }
+
+  .neo-button:active,
+  .neo-button-pressed {
+    box-shadow: 
+      inset 3px 3px 6px hsl(var(--neo-inset-dark)),
+      inset -2px -2px 4px hsl(var(--neo-inset-light));
+  }
+
+  .neo-button-primary {
+    @apply neo-button text-primary-foreground;
+    background: linear-gradient(145deg, hsl(175 70% 50%), hsl(175 70% 40%));
+    box-shadow: 
+      4px 4px 8px hsl(var(--neo-shadow-dark)),
+      -2px -2px 6px hsl(175 70% 25% / 0.3),
+      inset 0 1px 0 hsl(175 70% 70% / 0.3);
+  }
+
+  .neo-button-primary:hover {
+    background: linear-gradient(145deg, hsl(175 70% 55%), hsl(175 70% 45%));
+  }
+
+  /* Neomorphic input */
+  .neo-input {
+    @apply w-full px-4 py-3 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground transition-all duration-200 outline-none;
+    box-shadow: 
+      inset 2px 2px 4px hsl(var(--neo-inset-dark)),
+      inset -1px -1px 3px hsl(var(--neo-inset-light));
+    border: 1px solid transparent;
+  }
+
+  .neo-input:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 
+      inset 2px 2px 4px hsl(var(--neo-inset-dark)),
+      inset -1px -1px 3px hsl(var(--neo-inset-light)),
+      0 0 0 2px hsl(var(--primary) / 0.2);
+  }
+
+  .neo-textarea {
+    @apply neo-input resize-none min-h-[100px];
+  }
+
+  .rich-text-editor {
+    @apply text-foreground leading-relaxed;
+  }
+
+  .rich-text-editor[contenteditable][data-placeholder]:empty:before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+  }
+
+  .rich-text-editor ul {
+    @apply list-disc pl-5;
+  }
+
+  .rich-text-editor ol {
+    @apply list-decimal pl-5;
+  }
+
+  .rich-text-editor li {
+    @apply text-foreground;
+  }
+
+  .rich-text-content p {
+    @apply text-muted-foreground leading-relaxed;
+  }
+
+  .rich-text-content ul {
+    @apply list-disc pl-5 text-muted-foreground;
+  }
+
+  .rich-text-content ol {
+    @apply list-decimal pl-5 text-muted-foreground;
+  }
+
+  /* Outline section item */
+  .outline-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200;
+    background: transparent;
+  }
+
+  .outline-item:hover {
+    background: hsl(var(--glass-bg));
+  }
+
+  .outline-item.active {
+    @apply glass-card-subtle;
+    background: hsl(175 70% 45% / 0.1);
+    border-color: hsl(175 70% 45% / 0.3);
+  }
+
+  /* Status badge */
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+    background: hsl(var(--glass-bg));
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .status-badge-saving {
+    @apply status-badge;
+    color: hsl(45 90% 60%);
+  }
+
+  .status-badge-saved {
+    @apply status-badge;
+    color: hsl(var(--primary));
+  }
+
+  /* Item card in editor */
+  .item-card {
+    @apply glass-card-subtle p-4 transition-all duration-200;
+  }
+
+  .item-card:hover {
+    border-color: hsl(var(--glass-border));
+    box-shadow: 0 4px 16px hsl(230 30% 3% / 0.3);
+  }
+
+  /* Drawer overlay */
+  .drawer-overlay {
+    @apply fixed inset-0 bg-background/80 backdrop-blur-sm z-40;
+  }
+
+  .drawer-content {
+    @apply fixed right-0 top-0 h-full w-full max-w-lg glass-card z-50 rounded-l-2xl;
+    box-shadow: -8px 0 32px hsl(230 30% 3% / 0.5);
+  }
+
+  /* Preview modal */
+  .preview-modal-overlay {
+    @apply fixed inset-0 bg-background/90 backdrop-blur-md z-50 flex items-center justify-center p-4;
+  }
+
+  .preview-modal-content {
+    @apply glass-card w-full max-w-4xl max-h-[90vh] overflow-auto;
+  }
+
+  /* Action button group */
+  .action-btn {
+    @apply p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors duration-150;
+  }
+
+  .action-btn-danger {
+    @apply action-btn hover:text-destructive hover:bg-destructive/10;
+  }
+
+  /* Section header in editor */
+  .section-header {
+    @apply flex items-center justify-between mb-6;
+  }
+
+  .section-title {
+    @apply text-xl font-semibold text-foreground;
+  }
+
+  /* Count badge */
+  .count-badge {
+    @apply ml-2 px-2 py-0.5 text-xs rounded-full bg-primary/20 text-primary font-medium;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
