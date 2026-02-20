@@ -1,19 +1,19 @@
 import { Drawer } from '@/components/Drawer';
-import { Curriculum, Project } from '@/lib/types';
+import { Project, Resume } from '@/lib/types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface ProjectsEditorProps {
-  curriculum: Curriculum;
-  setCurriculum: React.Dispatch<React.SetStateAction<Curriculum>>;
+  resume: Resume;
+  setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
-export const ProjectsEditor = ({ curriculum, setCurriculum }: ProjectsEditorProps) => {
+export const ProjectsEditor = ({ resume, setResume }: ProjectsEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Project | null>(null);
   const [formData, setFormData] = useState<Omit<Project, 'id'>>({ name: '', description: '' });
 
-  const items = curriculum.projects.projects;
+  const items = resume.projects.projects;
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -28,7 +28,7 @@ export const ProjectsEditor = ({ curriculum, setCurriculum }: ProjectsEditorProp
   };
 
   const saveItem = () => {
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = editingItem
         ? prev.projects.projects.map(item => 
             item.id === editingItem.id 
@@ -47,7 +47,7 @@ export const ProjectsEditor = ({ curriculum, setCurriculum }: ProjectsEditorProp
   };
 
   const duplicateItem = (item: Project) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       projects: {
         ...prev.projects,
@@ -57,7 +57,7 @@ export const ProjectsEditor = ({ curriculum, setCurriculum }: ProjectsEditorProp
   };
 
   const deleteItem = (id: number) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       projects: {
         ...prev.projects,
@@ -70,7 +70,7 @@ export const ProjectsEditor = ({ curriculum, setCurriculum }: ProjectsEditorProp
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= items.length) return;
     
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = [...prev.projects.projects];
       [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
       return {

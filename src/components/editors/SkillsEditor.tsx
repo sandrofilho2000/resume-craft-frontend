@@ -1,81 +1,82 @@
 import { Drawer } from '@/components/Drawer';
-import { Curriculum, SkillGroup } from '@/lib/types';
+import { Resume } from '@/types/resume.types';
+import { SkillsSubSection } from '@/types/skills.types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface SkillsEditorProps {
-  curriculum: Curriculum;
-  setCurriculum: React.Dispatch<React.SetStateAction<Curriculum>>;
+  resume: Resume;
+  setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
-export const SkillsEditor = ({ curriculum, setCurriculum }: SkillsEditorProps) => {
+export const SkillsEditor = ({ resume, setResume }: SkillsEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<SkillGroup | null>(null);
-  const [formData, setFormData] = useState<Omit<SkillGroup, 'id'>>({ title: '', text: '' });
+  const [editingItem, setEditingItem] = useState<SkillsSubSection | null>(null);
+  const [formData, setFormData] = useState<Omit<SkillsSubSection, 'id' | 'skillsSectionId' | 'order'>>({ title: '', skills: [] });
 
-  const items = curriculum.skills.groups;
+  const subsections = resume.skillSection.subsections;
 
   const openAddDrawer = () => {
     setEditingItem(null);
-    setFormData({ title: '', text: '' });
+    setFormData({ title: '', skills: [] });
     setDrawerOpen(true);
   };
 
-  const openEditDrawer = (item: SkillGroup) => {
+  const openEditDrawer = (item: SkillsSubSection) => {
     setEditingItem(item);
-    setFormData({ title: item.title, text: item.text });
+    setFormData({ title: item.title, skills: [] });
     setDrawerOpen(true);
   };
 
   const saveItem = () => {
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = editingItem
-        ? prev.skills.groups.map(item => 
+        ? prev.skillSection.subsections.map(item => 
             item.id === editingItem.id 
               ? { ...item, ...formData }
               : item
           )
-        : [...prev.skills.groups, { id: 1, ...formData }];
+        : [...prev.skillSection.subsections, { id: 1, ...formData }];
       
       return {
         ...prev,
-        skills: { ...prev.skills, groups: newItems },
+        skills: { ...prev.skillSection, groups: newItems },
       };
     });
     
     setDrawerOpen(false);
   };
 
-  const duplicateItem = (item: SkillGroup) => {
-    setCurriculum(prev => ({
+  const duplicateItem = (item: SkillsSubSection) => {
+    setResume(prev => ({
       ...prev,
       skills: {
-        ...prev.skills,
-        groups: [...prev.skills.groups, { ...item, id: 1 }],
+        ...prev.skillSection,
+        groups: [...prev.skillSection.subsections, { ...item, id: 1 }],
       },
     }));
   };
 
   const deleteItem = (id: number) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       skills: {
-        ...prev.skills,
-        groups: prev.skills.groups.filter(item => item.id !== id),
+        ...prev.skillSection,
+        groups: prev.skillSection.subsections.filter(item => item.id !== id),
       },
     }));
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= items.length) return;
+    if (newIndex < 0 || newIndex >= subsections.length) return;
     
-    setCurriculum(prev => {
-      const newItems = [...prev.skills.groups];
+    setResume(prev => {
+      const newItems = [...prev.skillSection.subsections];
       [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
       return {
         ...prev,
-        skills: { ...prev.skills, groups: newItems },
+        skills: { ...prev.skillSection, groups: newItems },
       };
     });
   };
@@ -85,7 +86,7 @@ export const SkillsEditor = ({ curriculum, setCurriculum }: SkillsEditorProps) =
       <div className="section-header">
         <h2 className="section-title">
           Skills
-          <span className="count-badge">{items.length}</span>
+          <span className="count-badge">{subsections.length}</span>
         </h2>
         <button onClick={openAddDrawer} className="neo-button-primary flex items-center gap-2 text-sm">
           <Plus className="w-4 h-4" />
@@ -94,28 +95,28 @@ export const SkillsEditor = ({ curriculum, setCurriculum }: SkillsEditorProps) =
       </div>
 
       <div className="space-y-3">
-        {items.map((item, index) => (
-          <div key={item.id} className="item-card">
+        {subsections.map((subsection, index) => (
+          <div key={subsection.id} className="item-card">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-primary">{item.title || 'Untitled'}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">{item.text || 'No skills listed'}</p>
+                <h3 className="text-sm font-semibold text-primary">{subsection.title || 'Untitled'}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{}</p>
               </div>
               
               <div className="flex items-center gap-1">
                 <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="action-btn disabled:opacity-30">
                   <ChevronUp className="w-4 h-4" />
                 </button>
-                <button onClick={() => moveItem(index, 'down')} disabled={index === items.length - 1} className="action-btn disabled:opacity-30">
+                <button onClick={() => moveItem(index, 'down')} disabled={index === subsection.skills.length - 1} className="action-btn disabled:opacity-30">
                   <ChevronDown className="w-4 h-4" />
                 </button>
-                <button onClick={() => openEditDrawer(item)} className="action-btn">
+                <button onClick={() => openEditDrawer(subsection)} className="action-btn">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => duplicateItem(item)} className="action-btn">
+                <button onClick={() => duplicateItem(subsection)} className="action-btn">
                   <Copy className="w-4 h-4" />
                 </button>
-                <button onClick={() => deleteItem(item.id)} className="action-btn-danger">
+                <button onClick={() => deleteItem(subsection.id)} className="action-btn-danger">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -123,7 +124,7 @@ export const SkillsEditor = ({ curriculum, setCurriculum }: SkillsEditorProps) =
           </div>
         ))}
         
-        {items.length === 0 && (
+        {subsections.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No skill groups yet. Click "Add Skill Group" to create one.
           </div>
@@ -150,7 +151,7 @@ export const SkillsEditor = ({ curriculum, setCurriculum }: SkillsEditorProps) =
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-2">Skills (comma-separated)</label>
             <textarea
-              value={formData.text}
+              value={"formData.text"}
               onChange={(e) => setFormData(prev => ({ ...prev, text: e.target.value }))}
               className="neo-textarea"
               placeholder="e.g., React, TypeScript, Next.js, Tailwind CSS"

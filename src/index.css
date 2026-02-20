@@ -2,10 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Curriculum Builder - Dark Glassmorphism + Neomorphism Design System */
+/* Resume Builder - Dark Glassmorphism + Neomorphism Design System */
 
 @layer base {
   :root {
+    /* Base palette */
     --background: 230 25% 5%;
     --foreground: 210 40% 98%;
 
@@ -15,8 +16,8 @@
     --popover: 230 25% 7%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 175 70% 45%;
-    --primary-foreground: 230 25% 5%;
+    --primary: 217 91% 56%;
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 230 20% 12%;
     --secondary-foreground: 210 40% 98%;
@@ -24,17 +25,26 @@
     --muted: 230 15% 15%;
     --muted-foreground: 215 20% 55%;
 
-    --accent: 175 70% 40%;
-    --accent-foreground: 230 25% 5%;
+    --accent: 220 83% 52%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 230 15% 18%;
     --input: 230 20% 12%;
-    --ring: 175 70% 45%;
+    --ring: 217 91% 56%;
 
     --radius: 0.75rem;
+
+    /* Semantic accents */
+    --accent-strong: 204 94% 62%;
+    --warning: 45 90% 60%;
+    --action-secondary: 152 72% 42%;
+    --action-secondary-foreground: 210 40% 98%;
+    --action-secondary-strong: 160 84% 35%;
+    --action-secondary-highlight: 150 78% 55% / 0.35;
+    --action-secondary-shadow: 152 65% 22% / 0.35;
 
     /* Glass effect colors */
     --glass-bg: 230 20% 10% / 0.6;
@@ -47,14 +57,36 @@
     --neo-inset-dark: 230 30% 4%;
     --neo-inset-light: 230 15% 12%;
 
+    /* Neomorphic surfaces */
+    --neo-surface-1: 230 20% 14%;
+    --neo-surface-2: 230 20% 10%;
+    --neo-surface-1-hover: 230 20% 16%;
+    --neo-surface-2-hover: 230 20% 12%;
+    --neo-primary-1: 217 91% 59%;
+    --neo-primary-2: 220 83% 48%;
+    --neo-primary-1-hover: 214 95% 64%;
+    --neo-primary-2-hover: 220 83% 52%;
+    --neo-primary-shadow: 224 76% 26% / 0.35;
+    --neo-primary-highlight: 210 100% 85% / 0.3;
+    --surface-highlight-strong: 210 40% 98% / 0.08;
+    --surface-gradient-1: 230 20% 10%;
+    --surface-gradient-2: 230 25% 8%;
+
+    /* State and depth */
+    --state-active-bg: 217 91% 56% / 0.14;
+    --state-active-border: 217 91% 56% / 0.32;
+    --shadow-elevation-soft: 230 30% 3% / 0.3;
+    --shadow-elevation-card: 230 30% 3% / 0.4;
+    --shadow-elevation-panel: 230 30% 3% / 0.5;
+
     /* Gradient accents */
-    --gradient-primary: linear-gradient(135deg, hsl(175 70% 45%), hsl(190 80% 50%));
-    --gradient-subtle: linear-gradient(135deg, hsl(230 20% 10%), hsl(230 25% 8%));
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent-strong)));
+    --gradient-subtle: linear-gradient(135deg, hsl(var(--surface-gradient-1)), hsl(var(--surface-gradient-2)));
 
     --sidebar-background: 230 25% 6%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 175 70% 45%;
-    --sidebar-primary-foreground: 230 25% 5%;
+    --sidebar-primary: 217 91% 56%;
+    --sidebar-primary-foreground: 210 40% 98%;
     --sidebar-accent: 230 20% 12%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 230 15% 15%;
@@ -100,7 +132,7 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid hsl(var(--glass-border));
     box-shadow: 
-      0 8px 32px hsl(230 30% 3% / 0.4),
+      0 8px 32px hsl(var(--shadow-elevation-card)),
       inset 0 1px 0 hsl(var(--glass-highlight));
   }
 
@@ -115,19 +147,19 @@
   /* Neomorphic button */
   .neo-button {
     @apply relative px-4 py-2 rounded-lg font-medium transition-all duration-200;
-    background: linear-gradient(145deg, hsl(230 20% 14%), hsl(230 20% 10%));
+    background: linear-gradient(145deg, hsl(var(--neo-surface-1)), hsl(var(--neo-surface-2)));
     box-shadow: 
       4px 4px 8px hsl(var(--neo-shadow-dark)),
       -2px -2px 6px hsl(var(--neo-shadow-light)),
-      inset 0 1px 0 hsl(210 40% 98% / 0.05);
+      inset 0 1px 0 hsl(var(--glass-highlight));
   }
 
   .neo-button:hover {
-    background: linear-gradient(145deg, hsl(230 20% 16%), hsl(230 20% 12%));
+    background: linear-gradient(145deg, hsl(var(--neo-surface-1-hover)), hsl(var(--neo-surface-2-hover)));
     box-shadow: 
       6px 6px 12px hsl(var(--neo-shadow-dark)),
       -3px -3px 8px hsl(var(--neo-shadow-light)),
-      inset 0 1px 0 hsl(210 40% 98% / 0.08);
+      inset 0 1px 0 hsl(var(--surface-highlight-strong));
   }
 
   .neo-button:active,
@@ -139,15 +171,33 @@
 
   .neo-button-primary {
     @apply neo-button text-primary-foreground;
-    background: linear-gradient(145deg, hsl(175 70% 50%), hsl(175 70% 40%));
+    background: linear-gradient(145deg, hsl(var(--neo-primary-1)), hsl(var(--neo-primary-2)));
     box-shadow: 
       4px 4px 8px hsl(var(--neo-shadow-dark)),
-      -2px -2px 6px hsl(175 70% 25% / 0.3),
-      inset 0 1px 0 hsl(175 70% 70% / 0.3);
+      -2px -2px 6px hsl(var(--neo-primary-shadow)),
+      inset 0 1px 0 hsl(var(--neo-primary-highlight));
   }
 
   .neo-button-primary:hover {
-    background: linear-gradient(145deg, hsl(175 70% 55%), hsl(175 70% 45%));
+    background: linear-gradient(145deg, hsl(var(--neo-primary-1-hover)), hsl(var(--neo-primary-2-hover)));
+  }
+
+  .neo-button-secondary {
+    @apply neo-button;
+    color: hsl(var(--action-secondary-foreground));
+    background: linear-gradient(145deg, hsl(var(--action-secondary)), hsl(var(--action-secondary-strong)));
+    box-shadow:
+      4px 4px 8px hsl(var(--neo-shadow-dark)),
+      -2px -2px 6px hsl(var(--action-secondary-shadow)),
+      inset 0 1px 0 hsl(var(--action-secondary-highlight));
+  }
+
+  .neo-button-secondary:hover {
+    background: linear-gradient(
+      145deg,
+      hsl(var(--action-secondary) / 0.95),
+      hsl(var(--action-secondary-strong) / 0.95)
+    );
   }
 
   /* Neomorphic input */
@@ -216,8 +266,8 @@
 
   .outline-item.active {
     @apply glass-card-subtle;
-    background: hsl(175 70% 45% / 0.1);
-    border-color: hsl(175 70% 45% / 0.3);
+    background: hsl(var(--state-active-bg));
+    border-color: hsl(var(--state-active-border));
   }
 
   /* Status badge */
@@ -229,7 +279,7 @@
 
   .status-badge-saving {
     @apply status-badge;
-    color: hsl(45 90% 60%);
+    color: hsl(var(--warning));
   }
 
   .status-badge-saved {
@@ -244,7 +294,7 @@
 
   .item-card:hover {
     border-color: hsl(var(--glass-border));
-    box-shadow: 0 4px 16px hsl(230 30% 3% / 0.3);
+    box-shadow: 0 4px 16px hsl(var(--shadow-elevation-soft));
   }
 
   /* Drawer overlay */
@@ -254,7 +304,7 @@
 
   .drawer-content {
     @apply fixed right-0 top-0 h-full w-full max-w-lg glass-card z-50 rounded-l-2xl;
-    box-shadow: -8px 0 32px hsl(230 30% 3% / 0.5);
+    box-shadow: -8px 0 32px hsl(var(--shadow-elevation-panel));
   }
 
   /* Preview modal */

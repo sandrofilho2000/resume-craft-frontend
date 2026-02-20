@@ -1,14 +1,15 @@
-import { SectionKey, Curriculum } from '@/lib/types';
 import { sectionConfigs } from '@/lib/sectionConfigs';
 import { cn } from '@/lib/utils';
+import { Resume } from '@/types/resume.types';
+import { SectionKey } from '@/types/session.types';
 
 interface OutlineProps {
-  curriculum: Curriculum;
+  resume: Resume;
   activeSection: SectionKey;
   onSectionChange: (section: SectionKey) => void;
 }
 
-export const Outline = ({ curriculum, activeSection, onSectionChange }: OutlineProps) => {
+export const Outline = ({ resume, activeSection, onSectionChange }: OutlineProps) => {
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-border">
@@ -19,7 +20,7 @@ export const Outline = ({ curriculum, activeSection, onSectionChange }: OutlineP
       
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {sectionConfigs.map(({ key, label, icon: Icon, getCount }) => {
-          const count = getCount ? getCount(curriculum) : null;
+          const count = getCount ? 1 : null;
           const isActive = activeSection === key;
           
           return (

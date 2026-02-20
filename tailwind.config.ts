@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+const colorToken = (token: string) => `hsl(var(${token}))`;
+
 export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
@@ -14,48 +16,48 @@ export default {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: colorToken("--border"),
+        input: colorToken("--input"),
+        ring: colorToken("--ring"),
+        background: colorToken("--background"),
+        foreground: colorToken("--foreground"),
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: colorToken("--primary"),
+          foreground: colorToken("--primary-foreground"),
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: colorToken("--secondary"),
+          foreground: colorToken("--secondary-foreground"),
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: colorToken("--destructive"),
+          foreground: colorToken("--destructive-foreground"),
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: colorToken("--muted"),
+          foreground: colorToken("--muted-foreground"),
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: colorToken("--accent"),
+          foreground: colorToken("--accent-foreground"),
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: colorToken("--popover"),
+          foreground: colorToken("--popover-foreground"),
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: colorToken("--card"),
+          foreground: colorToken("--card-foreground"),
         },
         sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+          DEFAULT: colorToken("--sidebar-background"),
+          foreground: colorToken("--sidebar-foreground"),
+          primary: colorToken("--sidebar-primary"),
+          "primary-foreground": colorToken("--sidebar-primary-foreground"),
+          accent: colorToken("--sidebar-accent"),
+          "accent-foreground": colorToken("--sidebar-accent-foreground"),
+          border: colorToken("--sidebar-border"),
+          ring: colorToken("--sidebar-ring"),
         },
       },
       fontFamily: {

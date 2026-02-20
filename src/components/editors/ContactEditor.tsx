@@ -1,20 +1,21 @@
 import { Drawer } from '@/components/Drawer';
-import { ContactItem, Curriculum } from '@/lib/types';
 import { isValidEmail, normalizeLink } from '@/lib/validation';
+import { ContactItem } from '@/types/contact.types';
+import { Resume } from '@/types/resume.types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Link as LinkIcon, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface ContactEditorProps {
-  curriculum: Curriculum;
-  setCurriculum: React.Dispatch<React.SetStateAction<Curriculum>>;
+  resume: Resume;
+  setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
-export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps) => {
+export const ContactEditor = ({ resume, setResume }: ContactEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContactItem | null>(null);
-  const [formData, setFormData] = useState<Omit<ContactItem, 'id'>>({ title: '', text: '', link: '' });
+  const [formData, setFormData] = useState<Omit<ContactItem, 'id' | 'order' | 'sectionId'>>({ title: '', text: '', link: '' });
 
-  const items = curriculum.contact.items;
+  const items = resume.contact.items;
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -30,27 +31,39 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
 
   const saveItem = () => {
     const normalizedLink = normalizeLink(formData.link);
-    
-    setCurriculum(prev => {
+
+    setResume(prev => {
+      const items = prev.contact.items;
+
+      const nextOrder = items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 1;
+
+      const newItem: ContactItem = {
+        id: editingItem ? editingItem.id : Date.now(), // ou outro gerador
+        title: formData.title,
+        text: formData.text,
+        link: normalizedLink,
+        order: editingItem ? editingItem.order : nextOrder,
+        sectionId: prev.contact.id, // ou prev.contact.sectionId (depende do seu type)
+      };
+
       const newItems = editingItem
-        ? prev.contact.items.map(item => 
-            item.id === editingItem.id 
-              ? { ...item, ...formData, link: normalizedLink }
-              : item
-          )
-        : [...prev.contact.items, { id: 1, ...formData, link: normalizedLink }];
-      
+        ? items.map(item => (item.id === editingItem.id ? newItem : item))
+        : [...items, newItem];
+
       return {
         ...prev,
-        contact: { ...prev.contact, items: newItems },
+        contact: {
+          ...prev.contact,
+          items: newItems,
+        },
       };
     });
-    
+
     setDrawerOpen(false);
   };
 
   const duplicateItem = (item: ContactItem) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       contact: {
         ...prev.contact,
@@ -60,7 +73,7 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
   };
 
   const deleteItem = (id: number) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       contact: {
         ...prev.contact,
@@ -72,8 +85,8 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
   const moveItem = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= items.length) return;
-    
-    setCurriculum(prev => {
+
+    setResume(prev => {
       const newItems = [...prev.contact.items];
       [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
       return {
@@ -113,7 +126,7 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
                   </p>
                 )}
               </div>
-              
+
               <div className="flex items-center gap-1">
                 <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="action-btn disabled:opacity-30">
                   <ChevronUp className="w-4 h-4" />
@@ -134,7 +147,7 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
             </div>
           </div>
         ))}
-        
+
         {items.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No contact items yet. Click "Add Contact" to create one.
@@ -142,8 +155,8 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
         )}
       </div>
 
-      <Drawer 
-        isOpen={drawerOpen} 
+      <Drawer
+        isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         title={editingItem ? 'Edit Contact' : 'Add Contact'}
       >
@@ -158,7 +171,7 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
               placeholder="e.g., Email, LinkedIn, Phone"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-2">Value</label>
             <input
@@ -172,7 +185,7 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
               <p className="text-xs text-destructive mt-1">Please enter a valid email address</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-2">Link (optional)</label>
             <input
@@ -184,9 +197,9 @@ export const ContactEditor = ({ curriculum, setCurriculum }: ContactEditorProps)
             />
             <p className="text-xs text-muted-foreground mt-1">https:// will be added automatically if missing</p>
           </div>
-          
-          <button 
-            onClick={saveItem} 
+
+          <button
+            onClick={saveItem}
             disabled={emailError}
             className="neo-button-primary w-full flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
           >

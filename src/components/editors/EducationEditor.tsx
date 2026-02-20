@@ -1,17 +1,17 @@
 import { Drawer } from '@/components/Drawer';
-import { Curriculum, EducationItem } from '@/lib/types';
+import { EducationItem, Resume } from '@/lib/types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface EducationEditorProps {
-  curriculum: Curriculum;
-  setCurriculum: React.Dispatch<React.SetStateAction<Curriculum>>;
+  resume: Resume;
+  setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-export const EducationEditor = ({ curriculum, setCurriculum }: EducationEditorProps) => {
+export const EducationEditor = ({ resume, setResume }: EducationEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<EducationItem | null>(null);
   const [formData, setFormData] = useState<Omit<EducationItem, 'id'>>({
@@ -22,7 +22,7 @@ export const EducationEditor = ({ curriculum, setCurriculum }: EducationEditorPr
     is_current: false,
   });
 
-  const items = curriculum.education.items;
+  const items = resume.education.items;
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -49,7 +49,7 @@ export const EducationEditor = ({ curriculum, setCurriculum }: EducationEditorPr
   };
 
   const saveItem = () => {
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = editingItem
         ? prev.education.items.map(item => 
             item.id === editingItem.id 
@@ -68,7 +68,7 @@ export const EducationEditor = ({ curriculum, setCurriculum }: EducationEditorPr
   };
 
   const duplicateItem = (item: EducationItem) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       education: {
         ...prev.education,
@@ -78,7 +78,7 @@ export const EducationEditor = ({ curriculum, setCurriculum }: EducationEditorPr
   };
 
   const deleteItem = (id: number) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       education: {
         ...prev.education,
@@ -91,7 +91,7 @@ export const EducationEditor = ({ curriculum, setCurriculum }: EducationEditorPr
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= items.length) return;
     
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = [...prev.education.items];
       [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
       return {

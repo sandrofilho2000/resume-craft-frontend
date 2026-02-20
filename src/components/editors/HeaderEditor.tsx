@@ -1,10 +1,12 @@
-import { Curriculum } from '@/lib/types';
+import { useResume } from "@/hooks/useResume";
+import { Resume } from "@/types/resume.types";
 
 interface HeaderEditorProps {
-  curriculum: Curriculum;
+  resume: Resume;
 }
 
-export const HeaderEditor = ({ curriculum }: HeaderEditorProps) => {
+export const HeaderEditor = ({ resume }: HeaderEditorProps) => {
+  const { updateResume } = useResume()
   return (
     <div className="space-y-6 fade-in">
       <div className="section-header">
@@ -18,21 +20,10 @@ export const HeaderEditor = ({ curriculum }: HeaderEditorProps) => {
           </label>
           <input
             type="text"
-            value={curriculum.meta_title}
+            defaultValue={resume.meta_title}
+            onChange={(e) => updateResume({ ...resume, meta_title: e.target.value })}
             className="neo-input"
             placeholder="e.g., Senior Developer Resume"
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Full Name
-          </label>
-          <input
-            type="text"
-            value={curriculum.header_name}
-            className="neo-input"
-            placeholder="e.g., John Doe"
           />
         </div>
         
@@ -42,7 +33,8 @@ export const HeaderEditor = ({ curriculum }: HeaderEditorProps) => {
           </label>
           <input
             type="text"
-            value={curriculum.header_role}
+            defaultValue={resume.header_role}
+            onChange={(e) => updateResume({ ...resume, header_role: e.target.value })}
             className="neo-input"
             placeholder="e.g., Senior Software Engineer"
           />
@@ -55,7 +47,8 @@ export const HeaderEditor = ({ curriculum }: HeaderEditorProps) => {
             </label>
             <input
               type="text"
-              value={curriculum.job_title}
+              defaultValue={resume.job_title}
+              onChange={(e) => updateResume({ ...resume, job_title: e.target.value })}
               className="neo-input"
               placeholder="e.g., Full Stack Developer"
             />
@@ -67,7 +60,8 @@ export const HeaderEditor = ({ curriculum }: HeaderEditorProps) => {
             </label>
             <input
               type="text"
-              value={curriculum.company_name}
+              defaultValue={resume.company_name}
+              onChange={(e) => updateResume({ ...resume, company_name: e.target.value })}
               className="neo-input"
               placeholder="e.g., Tech Company Inc."
             />

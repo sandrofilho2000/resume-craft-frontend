@@ -1,11 +1,11 @@
 import { Drawer } from '@/components/Drawer';
-import { Curriculum, LanguageItem, LanguageLevel } from '@/lib/types';
+import { LanguageItem, LanguageLevel, Resume } from '@/lib/types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface LanguagesEditorProps {
-  curriculum: Curriculum;
-  setCurriculum: React.Dispatch<React.SetStateAction<Curriculum>>;
+  resume: Resume;
+  setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
 const LANGUAGE_LEVELS: { value: LanguageLevel; label: string }[] = [
@@ -15,7 +15,7 @@ const LANGUAGE_LEVELS: { value: LanguageLevel; label: string }[] = [
   { value: 'native', label: 'Native / Fluent' },
 ];
 
-export const LanguagesEditor = ({ curriculum, setCurriculum }: LanguagesEditorProps) => {
+export const LanguagesEditor = ({ resume, setResume }: LanguagesEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<LanguageItem | null>(null);
   const [formData, setFormData] = useState<Omit<LanguageItem, 'id'>>({
@@ -23,7 +23,7 @@ export const LanguagesEditor = ({ curriculum, setCurriculum }: LanguagesEditorPr
     level: 'intermediate',
   });
 
-  const items = curriculum.languages.items;
+  const items = resume.languages.items;
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -38,7 +38,7 @@ export const LanguagesEditor = ({ curriculum, setCurriculum }: LanguagesEditorPr
   };
 
   const saveItem = () => {
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = editingItem
         ? prev.languages.items.map(item => 
             item.id === editingItem.id 
@@ -57,7 +57,7 @@ export const LanguagesEditor = ({ curriculum, setCurriculum }: LanguagesEditorPr
   };
 
   const duplicateItem = (item: LanguageItem) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       languages: {
         ...prev.languages,
@@ -67,7 +67,7 @@ export const LanguagesEditor = ({ curriculum, setCurriculum }: LanguagesEditorPr
   };
 
   const deleteItem = (id: number) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       languages: {
         ...prev.languages,
@@ -80,7 +80,7 @@ export const LanguagesEditor = ({ curriculum, setCurriculum }: LanguagesEditorPr
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= items.length) return;
     
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = [...prev.languages.items];
       [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
       return {

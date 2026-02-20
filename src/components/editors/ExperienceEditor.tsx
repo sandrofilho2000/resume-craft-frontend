@@ -1,11 +1,11 @@
 import { Drawer } from '@/components/Drawer';
-import { Curriculum, Job } from '@/lib/types';
+import { Job, Resume } from '@/lib/types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, PlusCircle, Save, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 interface ExperienceEditorProps {
-  curriculum: Curriculum;
-  setCurriculum: React.Dispatch<React.SetStateAction<Curriculum>>;
+  resume: Resume;
+  setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
 const MONTHS = [
@@ -26,7 +26,7 @@ const MONTHS = [
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 30 }, (_, i) => currentYear - i);
 
-export const ExperienceEditor = ({ curriculum, setCurriculum }: ExperienceEditorProps) => {
+export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [formData, setFormData] = useState<Omit<Job, 'id'>>({
@@ -40,7 +40,7 @@ export const ExperienceEditor = ({ curriculum, setCurriculum }: ExperienceEditor
     bullets: [],
   });
 
-  const jobs = curriculum.experience.jobs;
+  const jobs = resume.experience.jobs;
 
   const openAddDrawer = () => {
     setEditingJob(null);
@@ -73,7 +73,7 @@ export const ExperienceEditor = ({ curriculum, setCurriculum }: ExperienceEditor
   };
 
   const saveJob = () => {
-    setCurriculum(prev => {
+    setResume(prev => {
       const newJobs = editingJob
         ? prev.experience.jobs.map(job => 
             job.id === editingJob.id 
@@ -93,7 +93,7 @@ export const ExperienceEditor = ({ curriculum, setCurriculum }: ExperienceEditor
 
   const duplicateJob = (job: Job) => {
     const newBullets = job.bullets.map(b => ({ ...b, id: 1 }));
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       experience: {
         ...prev.experience,
@@ -103,7 +103,7 @@ export const ExperienceEditor = ({ curriculum, setCurriculum }: ExperienceEditor
   };
 
   const deleteJob = (id: number) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       experience: {
         ...prev.experience,
@@ -116,7 +116,7 @@ export const ExperienceEditor = ({ curriculum, setCurriculum }: ExperienceEditor
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= jobs.length) return;
     
-    setCurriculum(prev => {
+    setResume(prev => {
       const newJobs = [...prev.experience.jobs];
       [newJobs[index], newJobs[newIndex]] = [newJobs[newIndex], newJobs[index]];
       return {

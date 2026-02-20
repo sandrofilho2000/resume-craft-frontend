@@ -36,7 +36,7 @@ const Header = () => {
                         </div>
                         <h1 className="text-lg font-semibold text-foreground hidden sm:block">
                             <a href="/">
-                                Curriculum Builder
+                                Resume Builder
                             </a>
                         </h1>
                     </div>

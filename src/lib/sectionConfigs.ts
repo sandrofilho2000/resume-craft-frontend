@@ -1,20 +1,20 @@
-import { 
-  User, 
-  Mail, 
-  FileText, 
-  Wrench, 
-  Briefcase, 
-  FolderKanban, 
-  GraduationCap, 
-  Languages 
+import { Resume, SectionKey } from '@/lib/types';
+import {
+    Briefcase,
+    FileText,
+    FolderKanban,
+    GraduationCap,
+    Languages,
+    Mail,
+    User,
+    Wrench
 } from 'lucide-react';
-import { SectionKey, Curriculum } from '@/lib/types';
 
 interface SectionConfig {
   key: SectionKey;
   label: string;
   icon: typeof User;
-  getCount?: (curriculum: Curriculum) => number | null;
+  getCount?: (resume: Resume) => number | null;
 }
 
 export const sectionConfigs: SectionConfig[] = [

@@ -1,17 +1,17 @@
 import { useToast } from '@/hooks/use-toast';
-import { Curriculum } from '@/lib/types';
+import { Resume } from '@/lib/types';
 import { Briefcase, Copy, Download, Globe, GraduationCap, Mail, X } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface PreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  curriculum: Curriculum;
+  resume: Resume;
 }
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps) => {
+export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
   }, [isOpen]);
 
   // const handleCopyJSON = async () => {
-  //   const json = exportCurriculumJSON(curriculum);
+  //   const json = exportResumeJSON(resume);
   //   const success = await copyToClipboard(json);
   //   if (success) {
   //     toast({
@@ -48,7 +48,7 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
   // };
 
   // const handleDownloadJSON = () => {
-  //   downloadJSON(curriculum, `${curriculum.header_name.replace(/\s+/g, '_')}_resume.json`);
+  //   downloadJSON(resume, `${resume.header_name.replace(/\s+/g, '_')}_resume.json`);
   //   toast({
   //     title: "Downloaded!",
   //     description: "JSON file downloaded",
@@ -92,22 +92,22 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
         <div className="p-8 space-y-8">
           {/* Header */}
           <header className="text-center pb-6 border-b border-border">
-            <h1 className="text-3xl font-bold text-foreground mb-2">{curriculum.header_name}</h1>
-            <p className="text-xl text-primary mb-1">{curriculum.header_role}</p>
-            {curriculum.job_title && curriculum.company_name && (
-              <p className="text-muted-foreground">{curriculum.job_title} at {curriculum.company_name}</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{resume.header_name}</h1>
+            <p className="text-xl text-primary mb-1">{resume.header_role}</p>
+            {resume.job_title && resume.company_name && (
+              <p className="text-muted-foreground">{resume.job_title} at {resume.company_name}</p>
             )}
           </header>
 
           {/* Contact */}
-          {curriculum.contact.items.length > 0 && (
+          {resume.contact.items.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <Mail className="w-5 h-5 text-primary" />
-                {curriculum.contact.title}
+                {resume.contact.title}
               </h2>
               <div className="flex flex-wrap gap-4">
-                {curriculum.contact.items.map(item => (
+                {resume.contact.items.map(item => (
                   <div key={item.id} className="text-sm">
                     <span className="text-muted-foreground">{item.title}: </span>
                     {item.link ? (
@@ -124,11 +124,11 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
           )}
 
           {/* Profile */}
-          {curriculum.profile.paragraphs.length > 0 && (
+          {resume.profile.paragraphs.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{curriculum.profile.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.profile.title}</h2>
               <div className="space-y-2 rich-text-content">
-                {curriculum.profile.paragraphs.map(p => (
+                {resume.profile.paragraphs.map(p => (
                   <div key={p.id} dangerouslySetInnerHTML={{ __html: p.text }} />
                 ))}
               </div>
@@ -136,11 +136,11 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
           )}
 
           {/* Skills */}
-          {curriculum.skills.groups.length > 0 && (
+          {resume.skills.groups.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{curriculum.skills.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skills.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {curriculum.skills.groups.map(group => (
+                {resume.skills.groups.map(group => (
                   <div key={group.id} className="glass-card-subtle p-3">
                     <h3 className="text-sm font-medium text-primary mb-1">{group.title}</h3>
                     <p className="text-sm text-muted-foreground">{group.text}</p>
@@ -151,14 +151,14 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
           )}
 
           {/* Experience */}
-          {curriculum.experience.jobs.length > 0 && (
+          {resume.experience.jobs.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-4">
                 <Briefcase className="w-5 h-5 text-primary" />
-                {curriculum.experience.title}
+                {resume.experience.title}
               </h2>
               <div className="space-y-6">
-                {curriculum.experience.jobs.map(job => (
+                {resume.experience.jobs.map(job => (
                   <div key={job.id} className="relative pl-4 border-l-2 border-primary/30">
                     <div className="mb-2">
                       <h3 className="text-base font-semibold text-foreground">{job.role}</h3>
@@ -184,11 +184,11 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
           )}
 
           {/* Projects */}
-          {curriculum.projects.projects.length > 0 && (
+          {resume.projects.projects.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{curriculum.projects.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.projects.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {curriculum.projects.projects.map(project => (
+                {resume.projects.projects.map(project => (
                   <div key={project.id} className="glass-card-subtle p-4">
                     <h3 className="text-sm font-semibold text-foreground mb-1">{project.name}</h3>
                     <p className="text-sm text-muted-foreground">{project.description}</p>
@@ -199,14 +199,14 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
           )}
 
           {/* Education */}
-          {curriculum.education.items.length > 0 && (
+          {resume.education.items.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <GraduationCap className="w-5 h-5 text-primary" />
-                {curriculum.education.title}
+                {resume.education.title}
               </h2>
               <div className="space-y-3">
-                {curriculum.education.items.map(item => (
+                {resume.education.items.map(item => (
                   <div key={item.id} className="flex justify-between items-start">
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">{item.institution}</h3>
@@ -222,14 +222,14 @@ export const PreviewModal = ({ isOpen, onClose, curriculum }: PreviewModalProps)
           )}
 
           {/* Languages */}
-          {curriculum.languages.items.length > 0 && (
+          {resume.languages.items.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <Globe className="w-5 h-5 text-primary" />
-                {curriculum.languages.title}
+                {resume.languages.title}
               </h2>
               <div className="flex flex-wrap gap-3">
-                {curriculum.languages.items.map(item => (
+                {resume.languages.items.map(item => (
                   <div key={item.id} className="glass-card-subtle px-3 py-2">
                     <span className="text-sm font-medium text-foreground">{item.language}</span>
                     <span className="text-xs text-muted-foreground ml-2 capitalize">({item.level})</span>

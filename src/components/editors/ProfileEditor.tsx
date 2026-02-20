@@ -1,20 +1,20 @@
 import { Drawer } from '@/components/Drawer';
-import { Curriculum, ProfileParagraph } from '@/lib/types';
+import { ProfileParagraph, Resume } from '@/lib/types';
 import { Bold, ChevronDown, ChevronUp, Copy, Edit2, Italic, List, ListOrdered, Plus, Save, Strikethrough } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface ProfileEditorProps {
-  curriculum: Curriculum;
-  setCurriculum: React.Dispatch<React.SetStateAction<Curriculum>>;
+  resume: Resume;
+  setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
-export const ProfileEditor = ({ curriculum, setCurriculum }: ProfileEditorProps) => {
+export const ProfileEditor = ({ resume, setResume }: ProfileEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ProfileParagraph | null>(null);
   const [formData, setFormData] = useState<string>('');
   const editorRef = useRef<HTMLDivElement | null>(null);
 
-  const items = curriculum.profile.paragraphs;
+  const items = resume.profile.paragraphs;
 
   const stripHtml = (value: string) => {
     if (!value) return '';
@@ -56,7 +56,7 @@ export const ProfileEditor = ({ curriculum, setCurriculum }: ProfileEditorProps)
   }, [drawerOpen, editingItem]);
 
   const saveItem = () => {
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = editingItem
         ? prev.profile.paragraphs.map(item =>
           item.id === editingItem.id
@@ -75,7 +75,7 @@ export const ProfileEditor = ({ curriculum, setCurriculum }: ProfileEditorProps)
   };
 
   const duplicateItem = (item: ProfileParagraph) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       profile: {
         ...prev.profile,
@@ -85,7 +85,7 @@ export const ProfileEditor = ({ curriculum, setCurriculum }: ProfileEditorProps)
   };
 
   const deleteItem = (id: number) => {
-    setCurriculum(prev => ({
+    setResume(prev => ({
       ...prev,
       profile: {
         ...prev.profile,
@@ -98,7 +98,7 @@ export const ProfileEditor = ({ curriculum, setCurriculum }: ProfileEditorProps)
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= items.length) return;
 
-    setCurriculum(prev => {
+    setResume(prev => {
       const newItems = [...prev.profile.paragraphs];
       [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
       return {

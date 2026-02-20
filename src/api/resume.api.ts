@@ -12,7 +12,7 @@ export type CreateResumeDTO = {
 export type EditResumeDTO = Partial<CreateResumeDTO>;
 
 export async function getResumeById(id: number) {
-  return http<Resume>(`/resume/${id}`);
+  return http<Resume>(`/resume/${id}/`);
 }
 
 export async function createResume(dto: CreateResumeDTO) {
@@ -22,7 +22,7 @@ export async function createResume(dto: CreateResumeDTO) {
   });
 }
 
-export async function updateResume(id: number, dto: EditResumeDTO) {
+export async function editResume(id: number, dto: EditResumeDTO) {
   return http<Resume, EditResumeDTO>(`/resume/${id}`, {
     method: 'PATCH',
     body: dto,

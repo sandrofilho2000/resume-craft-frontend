@@ -1,17 +1,27 @@
+import { getResumeById } from '@/api/resume.api';
 import Header from '@/components/Header';
 import { Outline } from '@/components/Outline';
 import { PreviewModal } from '@/components/PreviewModal';
 import { SectionEditor } from '@/components/SectionEditor';
 import { useResume } from '@/hooks/useResume';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 const ResumePage = () => {
   const { id } = useParams()
 
+  useEffect(() => {
+    if (id) {
+      getResumeById(1).then((result) => {
+        setResume(result)
+      })
+    }
+  }, [id])
+
   const {
-    curriculum,
-    setCurriculum,
+    resume,
+    updateResume,
+    setResume,
     resetToDefaults,
     saveStatus,
     activeSection,
@@ -30,12 +40,12 @@ const ResumePage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <Header/>
+      <Header />
 
       {/* Main Layout */}
       <div className="flex">
         {/* Sidebar / Outline */}
-        <aside 
+        <aside
           className={`
             fixed md:sticky top-16 left-0 z-20 
             w-64 h-[calc(100vh-4rem)] 
@@ -44,8 +54,8 @@ const ResumePage = () => {
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           `}
         >
-          <Outline 
-            curriculum={curriculum}
+          <Outline
+            resume={resume}
             activeSection={activeSection}
             onSectionChange={(section) => {
               setActiveSection(section);
@@ -56,29 +66,34 @@ const ResumePage = () => {
 
         {/* Overlay for mobile */}
         {sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-background/80 z-10 md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
-
-        {/* Editor Panel */}
-        <main className="flex-1 min-h-[calc(100vh-4rem)] p-4 md:p-8">
-          <div className="max-w-3xl mx-auto">
-            <SectionEditor 
-              activeSection={activeSection}
-              curriculum={curriculum}
-              setCurriculum={setCurriculum}
-            />
-          </div>
-        </main>
+        {
+          resume ? (
+            <main className="flex-1 min-h-[calc(100vh-4rem)] p-4 md:p-8">
+              <div className="max-w-3xl mx-auto">
+                <SectionEditor
+                  activeSection={activeSection}
+                  resume={resume}
+                  updateResume={updateResume}
+                  setResume={setResume}
+                />
+              </div>
+            </main>
+          ): (
+            <></>
+          )
+        }
       </div>
 
       {/* Preview Modal */}
-      <PreviewModal 
+      <PreviewModal
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        curriculum={curriculum}
+        resume={resume}
       />
     </div>
   );

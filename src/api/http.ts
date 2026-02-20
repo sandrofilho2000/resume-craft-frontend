@@ -21,7 +21,7 @@ export class HttpError extends Error {
   }
 }
 
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:7070';
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://127.0.0.1:3000';
 
 function buildUrl(path: string) {
   if (!path.startsWith('/')) return `${BASE_URL}/${path}`;
@@ -49,7 +49,7 @@ export async function http<TResponse, TBody = unknown>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
     signal,
   });
-
+  
   const data = await parseResponse(res);
 
   if (!res.ok) {
