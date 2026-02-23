@@ -1,5 +1,5 @@
 import { useToast } from '@/hooks/use-toast';
-import { Resume } from '@/lib/types';
+import { Resume } from '@/types/resume.types';
 import { Briefcase, Copy, Download, Globe, GraduationCap, Mail, X } from 'lucide-react';
 import { useEffect } from 'react';
 
@@ -124,26 +124,24 @@ export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => 
           )}
 
           {/* Profile */}
-          {resume.profile.paragraphs.length > 0 && (
+          {resume.profileSection != null && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.profile.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.profileSection.title}</h2>
               <div className="space-y-2 rich-text-content">
-                {resume.profile.paragraphs.map(p => (
-                  <div key={p.id} dangerouslySetInnerHTML={{ __html: p.text }} />
-                ))}
+                <div dangerouslySetInnerHTML={{ __html: resume.profileSection.content }} />
               </div>
             </section>
           )}
 
           {/* Skills */}
-          {resume.skills.groups.length > 0 && (
+          {resume.skillSection.subsections.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skills.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skillSection.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {resume.skills.groups.map(group => (
+                {resume.skillSection.subsections.map(group => (
                   <div key={group.id} className="glass-card-subtle p-3">
                     <h3 className="text-sm font-medium text-primary mb-1">{group.title}</h3>
-                    <p className="text-sm text-muted-foreground">{group.text}</p>
+                    {/* <p className="text-sm text-muted-foreground">{group.description}</p> */}
                   </div>
                 ))}
               </div>
@@ -164,7 +162,7 @@ export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => 
                       <h3 className="text-base font-semibold text-foreground">{job.role}</h3>
                       <p className="text-sm text-primary">{job.company}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatDate(job.start_month, job.start_year, false)} — {formatDate(job.end_month, job.end_year, job.is_current)}
+                        {formatDate(job.startMonth, job.startYear, false)} — {formatDate(job.endMonth, job.endYear, job.isCurrent)}
                       </p>
                     </div>
                     {job.bullets.length > 0 && (
@@ -184,11 +182,11 @@ export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => 
           )}
 
           {/* Projects */}
-          {resume.projects.projects.length > 0 && (
+          {resume.projectsSection.projects.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.projects.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.projectsSection.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {resume.projects.projects.map(project => (
+                {resume.projectsSection.projects.map(project => (
                   <div key={project.id} className="glass-card-subtle p-4">
                     <h3 className="text-sm font-semibold text-foreground mb-1">{project.name}</h3>
                     <p className="text-sm text-muted-foreground">{project.description}</p>
@@ -199,21 +197,21 @@ export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => 
           )}
 
           {/* Education */}
-          {resume.education.items.length > 0 && (
+          {resume.educationSection.items.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <GraduationCap className="w-5 h-5 text-primary" />
-                {resume.education.title}
+                {resume.educationSection.title}
               </h2>
               <div className="space-y-3">
-                {resume.education.items.map(item => (
+                {resume.educationSection.items.map(item => (
                   <div key={item.id} className="flex justify-between items-start">
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">{item.institution}</h3>
                       <p className="text-sm text-muted-foreground">{item.text}</p>
                     </div>
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {item.start_year} — {item.is_current ? 'Present' : item.end_year}
+                      {item.startYear} — {item.isCurrent ? 'Present' : item.endYear}
                     </span>
                   </div>
                 ))}
@@ -222,14 +220,14 @@ export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => 
           )}
 
           {/* Languages */}
-          {resume.languages.items.length > 0 && (
+          {resume.languagesSection.items.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <Globe className="w-5 h-5 text-primary" />
-                {resume.languages.title}
+                {resume.languagesSection.title}
               </h2>
               <div className="flex flex-wrap gap-3">
-                {resume.languages.items.map(item => (
+                {resume.languagesSection.items.map(item => (
                   <div key={item.id} className="glass-card-subtle px-3 py-2">
                     <span className="text-sm font-medium text-foreground">{item.language}</span>
                     <span className="text-xs text-muted-foreground ml-2 capitalize">({item.level})</span>

@@ -1,4 +1,5 @@
 import { Resume } from '@/types/resume.types';
+import { ContactSection } from '@/types/contact.types';
 import { SectionKey } from '@/types/session.types';
 import { ContactEditor } from './editors/ContactEditor';
 import { EducationEditor } from './editors/EducationEditor';
@@ -13,20 +14,23 @@ interface SectionEditorProps {
   activeSection: SectionKey;
   resume: Resume;
   updateResume: (updates: Partial<Resume>) => void;
+  updateContact: (updates: Partial<ContactSection>) => void;
   setResume: React.Dispatch<React.SetStateAction<Resume>>;
 }
 
-export const SectionEditor = ({ 
-  activeSection, 
-  resume, 
+export const SectionEditor = ({
+  activeSection,
+  resume,
   updateResume,
+  updateContact,
   setResume,
 }: SectionEditorProps) => {
+ 
   switch (activeSection) {
     case 'header':
       return <HeaderEditor resume={resume} />;
     case 'contact':
-      return <ContactEditor resume={resume} setResume={setResume} />;
+      return <ContactEditor resume={resume} setResume={setResume} updateContact={updateContact} />;
     case 'profile':
       return <ProfileEditor resume={resume} setResume={setResume} />;
     case 'skills':

@@ -1,21 +1,24 @@
 import { Drawer } from '@/components/Drawer';
 import { isValidEmail, normalizeLink } from '@/lib/validation';
-import { ContactItem } from '@/types/contact.types';
+import { ContactItem, ContactSection } from '@/types/contact.types';
 import { Resume } from '@/types/resume.types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Link as LinkIcon, Plus, Save, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 interface ContactEditorProps {
   resume: Resume;
   setResume: React.Dispatch<React.SetStateAction<Resume>>;
+  updateContact: (updates: Partial<ContactSection>) => void;
 }
 
-export const ContactEditor = ({ resume, setResume }: ContactEditorProps) => {
+export const ContactEditor = ({ resume, setResume, updateContact }: ContactEditorProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContactItem | null>(null);
   const [formData, setFormData] = useState<Omit<ContactItem, 'id' | 'order' | 'sectionId'>>({ title: '', text: '', link: '' });
 
-  const items = resume.contact.items;
+  const items = resume?.contact?.items ?? [];
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -32,74 +35,102 @@ export const ContactEditor = ({ resume, setResume }: ContactEditorProps) => {
   const saveItem = () => {
     const normalizedLink = normalizeLink(formData.link);
 
-    setResume(prev => {
-      const items = prev.contact.items;
+    const items = resume.contact.items;
 
-      const nextOrder = items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 1;
+    const nextOrder = items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 1;
 
-      const newItem: ContactItem = {
-        id: editingItem ? editingItem.id : Date.now(), // ou outro gerador
-        title: formData.title,
-        text: formData.text,
-        link: normalizedLink,
-        order: editingItem ? editingItem.order : nextOrder,
-        sectionId: prev.contact.id, // ou prev.contact.sectionId (depende do seu type)
-      };
+    const newItem: ContactItem = {
+      id: editingItem ? editingItem.id : Date.now(),
+      title: formData.title,
+      text: formData.text,
+      link: normalizedLink,
+      order: editingItem ? editingItem.order : nextOrder,
+      sectionId: resume.contact.id,
+    };
 
-      const newItems = editingItem
-        ? items.map(item => (item.id === editingItem.id ? newItem : item))
-        : [...items, newItem];
+    const newItems = editingItem
+      ? items.map(item => (item.id === editingItem.id ? newItem : item))
+      : [...items, newItem];
 
-      return {
-        ...prev,
-        contact: {
-          ...prev.contact,
-          items: newItems,
-        },
-      };
-    });
+    const newContact = { ...resume.contact, items: [...newItems] }
 
+    updateContact(newContact)
     setDrawerOpen(false);
   };
 
-  const duplicateItem = (item: ContactItem) => {
-    setResume(prev => ({
-      ...prev,
-      contact: {
-        ...prev.contact,
-        items: [...prev.contact.items, { ...item, id: 1 }],
-      },
-    }));
+  const duplicateItem = (newItem: ContactItem) => {
+    const items = resume.contact.items;
+    const nextOrder = items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 1;
+    const nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+
+    newItem = {
+      ...newItem,
+      id: nextId,
+      order: editingItem ? editingItem.order : nextOrder,
+    };
+
+    const newItems = editingItem
+      ? items.map(item => (item.id === editingItem.id ? newItem : item))
+      : [...items, newItem];
+
+    const newContact = { ...resume.contact, items: [...newItems] }
+
+    updateContact(newContact)
   };
 
   const deleteItem = (id: number) => {
-    setResume(prev => ({
-      ...prev,
-      contact: {
-        ...prev.contact,
-        items: prev.contact.items.filter(item => item.id !== id),
-      },
-    }));
+    confirmAlert({
+      title: 'Confirm deletion',
+      message: 'Are you sure you want to delete this contact item?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            const items = resume.contact.items;
+            const filteredItens = items.filter(item => (item.id !== id))
+            const newContact = { ...resume.contact, items: [...filteredItens] }
+            updateContact(newContact)
+          },
+        },
+        {
+          label: 'No',
+        },
+      ],
+    });
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= items.length) return;
 
-    setResume(prev => {
-      const newItems = [...prev.contact.items];
-      [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
-      return {
-        ...prev,
-        contact: { ...prev.contact, items: newItems },
-      };
-    });
+    if (newIndex < 0 || newIndex >= resume.contact.items.length) return;
+
+    const newItems = [...resume.contact.items];
+
+    [newItems[index], newItems[newIndex]] = [
+      newItems[newIndex],
+      newItems[index],
+    ];
+
+    const reordered = newItems.map((item, i) => ({
+      ...item,
+      order: i + 1,
+    }));
+
+    const newContact = {
+      ...resume.contact,
+      items: reordered,
+    };
+
+    updateContact(newContact);
   };
+
+  useEffect(() => {
+  }, [resume])
 
   const isEmailField = formData.title.toLowerCase().includes('email');
   const emailError = isEmailField && formData.text && !isValidEmail(formData.text);
 
-  return (
+  return resume ? (
     <div className="space-y-6 fade-in">
       <div className="section-header">
         <h2 className="section-title">
@@ -113,7 +144,7 @@ export const ContactEditor = ({ resume, setResume }: ContactEditorProps) => {
       </div>
 
       <div className="space-y-3">
-        {items.map((item, index) => (
+        {resume.contact?.items.map((item, index) => (
           <div key={item.id} className="item-card">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
@@ -148,7 +179,7 @@ export const ContactEditor = ({ resume, setResume }: ContactEditorProps) => {
           </div>
         ))}
 
-        {items.length === 0 && (
+        {resume.contact?.items.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No contact items yet. Click "Add Contact" to create one.
           </div>
@@ -209,5 +240,5 @@ export const ContactEditor = ({ resume, setResume }: ContactEditorProps) => {
         </div>
       </Drawer>
     </div>
-  );
+  ) : (<></>);
 };

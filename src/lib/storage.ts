@@ -16,10 +16,11 @@ export const loadResume = () => {
 };
 
 export const saveResume = (resume: Resume): void => {
+  if(resume === undefined) return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(resume));
   } catch (error) {
-    console.error('Error saving resume to localStorage:', error);
+    console.error('Error saving resume to localStorage:', resume);
   }
 };
 

@@ -124,6 +124,7 @@
 }
 
 @layer components {
+
   /* Glassmorphism card */
   .glass-card {
     @apply relative overflow-hidden rounded-xl;
@@ -131,7 +132,7 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid hsl(var(--glass-border));
-    box-shadow: 
+    box-shadow:
       0 8px 32px hsl(var(--shadow-elevation-card)),
       inset 0 1px 0 hsl(var(--glass-highlight));
   }
@@ -148,7 +149,7 @@
   .neo-button {
     @apply relative px-4 py-2 rounded-lg font-medium transition-all duration-200;
     background: linear-gradient(145deg, hsl(var(--neo-surface-1)), hsl(var(--neo-surface-2)));
-    box-shadow: 
+    box-shadow:
       4px 4px 8px hsl(var(--neo-shadow-dark)),
       -2px -2px 6px hsl(var(--neo-shadow-light)),
       inset 0 1px 0 hsl(var(--glass-highlight));
@@ -156,7 +157,7 @@
 
   .neo-button:hover {
     background: linear-gradient(145deg, hsl(var(--neo-surface-1-hover)), hsl(var(--neo-surface-2-hover)));
-    box-shadow: 
+    box-shadow:
       6px 6px 12px hsl(var(--neo-shadow-dark)),
       -3px -3px 8px hsl(var(--neo-shadow-light)),
       inset 0 1px 0 hsl(var(--surface-highlight-strong));
@@ -164,7 +165,7 @@
 
   .neo-button:active,
   .neo-button-pressed {
-    box-shadow: 
+    box-shadow:
       inset 3px 3px 6px hsl(var(--neo-inset-dark)),
       inset -2px -2px 4px hsl(var(--neo-inset-light));
   }
@@ -172,7 +173,7 @@
   .neo-button-primary {
     @apply neo-button text-primary-foreground;
     background: linear-gradient(145deg, hsl(var(--neo-primary-1)), hsl(var(--neo-primary-2)));
-    box-shadow: 
+    box-shadow:
       4px 4px 8px hsl(var(--neo-shadow-dark)),
       -2px -2px 6px hsl(var(--neo-primary-shadow)),
       inset 0 1px 0 hsl(var(--neo-primary-highlight));
@@ -193,17 +194,15 @@
   }
 
   .neo-button-secondary:hover {
-    background: linear-gradient(
-      145deg,
-      hsl(var(--action-secondary) / 0.95),
-      hsl(var(--action-secondary-strong) / 0.95)
-    );
+    background: linear-gradient(145deg,
+        hsl(var(--action-secondary) / 0.95),
+        hsl(var(--action-secondary-strong) / 0.95));
   }
 
   /* Neomorphic input */
   .neo-input {
     @apply w-full px-4 py-3 rounded-lg bg-secondary text-foreground placeholder:text-muted-foreground transition-all duration-200 outline-none;
-    box-shadow: 
+    box-shadow:
       inset 2px 2px 4px hsl(var(--neo-inset-dark)),
       inset -1px -1px 3px hsl(var(--neo-inset-light));
     border: 1px solid transparent;
@@ -211,7 +210,7 @@
 
   .neo-input:focus {
     border-color: hsl(var(--primary));
-    box-shadow: 
+    box-shadow:
       inset 2px 2px 4px hsl(var(--neo-inset-dark)),
       inset -1px -1px 3px hsl(var(--neo-inset-light)),
       0 0 0 2px hsl(var(--primary) / 0.2);
@@ -351,9 +350,12 @@
   }
 
   @keyframes pulse-subtle {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.7;
     }
@@ -368,6 +370,7 @@
       opacity: 0;
       transform: translateY(-4px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -383,9 +386,72 @@
       opacity: 0;
       transform: translateX(100%);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
     }
   }
+}
+
+.react-confirm-alert-overlay{
+  background-color: #0a0b1072;
+}
+
+div.react-confirm-alert-body{
+  background-color: rgb(16 17 24);
+  color: white;
+}
+
+div.react-confirm-alert-button-group button[label=No] {
+  color: white;
+  background: linear-gradient(145deg, hsl(var(--neo-primary-1)), hsl(var(--neo-primary-2)));
+  box-shadow: 4px 4px 8px hsl(var(--neo-shadow-dark)),
+  -2px -2px 6px hsl(var(--neo-primary-shadow)),
+  inset 0 1px 0 hsl(var(--neo-primary-highlight));
+  border-color: hsl(var(--border));
+  margin-left: 4px;
+}
+
+div.react-confirm-alert-button-group button[label=Yes] {
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--destructive));
+  box-shadow: 4px 4px 8px hsl(var(--neo-shadow-dark)),
+  -2px -2px 6px hsl(var(--neo-primary-shadow)),
+  inset 0 1px 0 hsl(var(--neo-primary-highlight));
+  border-color: hsl(var(--border));
+  margin-right: 4px;
+}
+
+div.react-confirm-alert-button-group button {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+
+  font-family: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  margin: 0;
+  text-transform: none;
+  -webkit-appearance: button;
+  cursor: pointer;
+  position: relative;
+  border-radius: var(--radius);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-weight: 500;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+  animation-duration: 200ms;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }

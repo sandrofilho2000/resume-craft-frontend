@@ -1,5 +1,6 @@
-import { editResume } from '@/api/resume.api';
+import { editContact, editResume } from '@/api/resume.api';
 import { saveResume } from '@/lib/storage';
+import { ContactSection } from '@/types/contact.types';
 import { SectionKey } from '@/types/session.types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Resume } from '../types/resume.types';
@@ -7,6 +8,7 @@ import { Resume } from '../types/resume.types';
 interface useResumeReturn {
   resume: Resume;
   updateResume: (updates: Partial<Resume>) => void;
+  updateContact: (updates: Partial<ContactSection>) => void;
   setResume: React.Dispatch<React.SetStateAction<Resume>>;
   resetToDefaults: () => void;
   saveStatus: 'idle' | 'saving' | 'saved';
@@ -24,16 +26,14 @@ export const useResume = (): useResumeReturn => {
   // Auto-save with debounce
   useEffect(() => {
     // Clear existing timeout
+    if (!resume) return;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    setSaveStatus('saving');
-
     // Debounce save
     timeoutRef.current = setTimeout(() => {
       saveResume(resume);
-      setSaveStatus('saved');
 
       // Reset to idle after a short delay
       if (saveTimeoutRef.current) {
@@ -64,6 +64,22 @@ export const useResume = (): useResumeReturn => {
     }, 500);
   }, []);
 
+  const updateContact = useCallback((updates: Partial<ContactSection>) => {
+    setSaveStatus("saving")
+    editContact(updates.resumeId, updates).then((result) => {
+      console.log("resume: ", resume)
+      console.log("🚀 ~ useResume ~ result:", result)
+      setResume(prev => {
+        setSaveStatus("saved") 
+        console.log("🚀 ~ useResume ~ prev:", prev)
+        return {
+          ...prev,
+          contact: result,
+        };
+      });
+    })
+  }, []);
+
   const resetToDefaults = useCallback(() => {
     setActiveSection('header');
   }, []);
@@ -71,6 +87,7 @@ export const useResume = (): useResumeReturn => {
   return {
     resume,
     updateResume,
+    updateContact,
     setResume,
     resetToDefaults,
     saveStatus,

@@ -1,17 +1,20 @@
-import { useResume } from '@/hooks/useResume';
 import { Check, Eye, FileText, Loader2, Menu, RotateCcw, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-const Header = () => {
-    const {
-        resetToDefaults,
-        saveStatus,
-    } = useResume();
+interface HeaderProps {
+    resetToDefaults?: () => void;
+    saveStatus?: 'idle' | 'saving' | 'saved';
+}
 
+const Header = ({ resetToDefaults, saveStatus }: HeaderProps) => {
     const { id } = useParams()
     const [previewOpen, setPreviewOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        console.log("Header saveStatus:", saveStatus)
+    }, [saveStatus])
 
     const handleReset = () => {
         if (window.confirm('Are you sure you want to reset? This will clear all your data and restore defaults.')) {
