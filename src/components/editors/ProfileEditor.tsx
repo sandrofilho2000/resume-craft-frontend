@@ -1,32 +1,29 @@
-import { Drawer } from '@/components/Drawer';
-import { ProfileParagraph, Resume } from '@/lib/types';
-import { Bold, ChevronDown, ChevronUp, Copy, Edit2, Italic, List, ListOrdered, Plus, Save, Strikethrough } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { Drawer } from "@/components/Drawer";
+import { useResumeContext } from "@/contexts/ResumeContext";
+import {
+  Bold,
+  Edit2,
+  Italic,
+  List,
+  ListOrdered,
+  Save,
+  Strikethrough,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-interface ProfileEditorProps {
-  resume: Resume;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-}
-
-export const ProfileEditor = ({ resume, setResume }: ProfileEditorProps) => {
+export const ProfileEditor = () => {
+  const { resume, updateProfile, saveStatus } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<ProfileParagraph | null>(null);
-  const [formData, setFormData] = useState<string>('');
+  const [formData, setFormData] = useState<string>("");
+
   const editorRef = useRef<HTMLDivElement | null>(null);
 
-  const items = resume.profile.paragraphs;
-
-  const stripHtml = (value: string) => {
-    if (!value) return '';
-    const temp = document.createElement('div');
-    temp.innerHTML = value;
-    return temp.textContent ?? '';
-  };
+  const profile = resume?.profile;
 
   const getEditorHtml = () => {
-    if (!editorRef.current) return '';
-    const text = editorRef.current.textContent?.trim() ?? '';
-    if (!text) return '';
+    if (!editorRef.current) return "";
+    const text = editorRef.current.textContent?.trim() ?? "";
+    if (!text) return "";
     return editorRef.current.innerHTML;
   };
 
@@ -37,184 +34,140 @@ export const ProfileEditor = ({ resume, setResume }: ProfileEditorProps) => {
     setFormData(getEditorHtml());
   };
 
-  const openAddDrawer = () => {
-    setEditingItem(null);
-    setFormData('');
-    setDrawerOpen(true);
-  };
-
-  const openEditDrawer = (item: ProfileParagraph) => {
-    setEditingItem(item);
-    setFormData(item.text);
+  const openEditDrawer = () => {
     setDrawerOpen(true);
   };
 
   useEffect(() => {
     if (!drawerOpen) return;
     if (!editorRef.current) return;
-    editorRef.current.innerHTML = formData || '';
-  }, [drawerOpen, editingItem]);
 
-  const saveItem = () => {
-    setResume(prev => {
-      const newItems = editingItem
-        ? prev.profile.paragraphs.map(item =>
-          item.id === editingItem.id
-            ? { ...item, text: formData }
-            : item
-        )
-        : [...prev.profile.paragraphs, { id: 1, text: formData }];
+    const current = profile?.content ?? "";
+    setFormData(current);
+    editorRef.current.innerHTML = current;
+  }, [drawerOpen, profile?.content]);
 
-      return {
-        ...prev,
-        profile: { ...prev.profile, paragraphs: newItems },
-      };
+  const saveProfile = () => {
+    
+    console.log("🚀 ~ saveProfile ~ formData:", formData)
+    console.log("🚀 ~ saveProfile ~ updateProfile:", updateProfile)
+
+    const nextContent = formData;
+
+    // ✅ não muda estado local aqui; só delega pro hook
+    updateProfile({
+      resumeId: profile?.resumeId ?? resume.id,
+      ...(profile?.id ? { id: profile.id } : {}),
+      ...(profile?.title ? { title: profile.title } : {}),
+      content: nextContent,
     });
 
     setDrawerOpen(false);
   };
 
-  const duplicateItem = (item: ProfileParagraph) => {
-    setResume(prev => ({
-      ...prev,
-      profile: {
-        ...prev.profile,
-        paragraphs: [...prev.profile.paragraphs, { ...item, id: 1 }],
-      },
-    }));
-  };
 
-  const deleteItem = (id: number) => {
-    setResume(prev => ({
-      ...prev,
-      profile: {
-        ...prev.profile,
-        paragraphs: prev.profile.paragraphs.filter(item => item.id !== id),
-      },
-    }));
-  };
-
-  const moveItem = (index: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= items.length) return;
-
-    setResume(prev => {
-      const newItems = [...prev.profile.paragraphs];
-      [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
-      return {
-        ...prev,
-        profile: { ...prev.profile, paragraphs: newItems },
-      };
-    });
-  };
+  if (!resume) return null;
 
   return (
     <div className="space-y-6 fade-in">
       <div className="section-header">
         <h2 className="section-title">
-          Professional Profile
-          <span className="count-badge">{items.length}</span>
+          {profile?.title ?? "Professional Profile"}
+          <span className="count-badge">1</span>
         </h2>
-          {items.length === 0 && (
-            <button onClick={openAddDrawer} className="neo-button-primary flex items-center gap-2 text-sm">
-              <Plus className="w-4 h-4" />
-              Add Paragraph
-            </button>
-          )}
 
+        <button
+          onClick={openEditDrawer}
+          disabled={saveStatus === "saving"}
+          className="neo-button-primary flex items-center gap-2 text-sm disabled:opacity-50"
+        >
+          <Edit2 className="w-4 h-4" />
+          Edit
+        </button>
       </div>
 
       <div className="space-y-3">
-        {items.map((item, index) => (
-          <div key={item.id} className="item-card">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
+        <div className="item-card">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              {profile?.content ? (
                 <div
-                  className="text-sm text-muted-foreground line-clamp-3 rich-text-content"
-                  dangerouslySetInnerHTML={{ __html: item.text }}
+                  className="text-sm text-muted-foreground line-clamp-6 rich-text-content"
+                  dangerouslySetInnerHTML={{ __html: profile.content }}
                 />
-              </div>
-
-              <div className="flex items-center gap-1">
-                <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="action-btn disabled:opacity-30">
-                  <ChevronUp className="w-4 h-4" />
-                </button>
-                <button onClick={() => moveItem(index, 'down')} disabled={index === items.length - 1} className="action-btn disabled:opacity-30">
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                <button onClick={() => openEditDrawer(item)} className="action-btn">
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button onClick={() => deleteItem(item.id)} className="action-btn">
-                  <Copy className="w-4 h-4" />
-                </button>
-              </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  No profile content yet. Click “Edit” to add your professional profile.
+                </div>
+              )}
             </div>
           </div>
-        ))}
-
-        {items.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            No profile paragraphs yet. Click "Add Paragraph" to create one.
-          </div>
-        )}
+        </div>
       </div>
 
       <Drawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        title={editingItem ? 'Edit Paragraph' : 'Add Paragraph'}
+        title="Edit Professional Profile"
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-2">Paragraph Text</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              Profile Content
+            </label>
+
             <div className="flex items-center gap-1 mb-2">
               <button
                 type="button"
                 className="action-btn"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => applyCommand('bold')}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyCommand("bold")}
                 title="Bold (Ctrl+B)"
               >
                 <Bold className="w-4 h-4" />
               </button>
+
               <button
                 type="button"
                 className="action-btn"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => applyCommand('italic')}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyCommand("italic")}
                 title="Italic (Ctrl+I)"
               >
                 <Italic className="w-4 h-4" />
               </button>
+
               <button
                 type="button"
                 className="action-btn"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => applyCommand('strikeThrough')}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyCommand("strikeThrough")}
                 title="Strikethrough"
               >
                 <Strikethrough className="w-4 h-4" />
               </button>
+
               <button
                 type="button"
                 className="action-btn"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => applyCommand('insertUnorderedList')}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyCommand("insertUnorderedList")}
                 title="Bullet List"
               >
                 <List className="w-4 h-4" />
               </button>
+
               <button
                 type="button"
                 className="action-btn"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => applyCommand('insertOrderedList')}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => applyCommand("insertOrderedList")}
                 title="Numbered List"
               >
                 <ListOrdered className="w-4 h-4" />
               </button>
             </div>
+
             <div
               ref={editorRef}
               className="neo-textarea min-h-[200px] rich-text-editor"
@@ -223,21 +176,22 @@ export const ProfileEditor = ({ resume, setResume }: ProfileEditorProps) => {
               aria-multiline="true"
               suppressContentEditableWarning
               onInput={() => setFormData(getEditorHtml())}
-              onKeyDown={(e) => {
+              onKeyDown={e => {
                 const isMod = e.ctrlKey || e.metaKey;
                 if (!isMod) return;
+
                 const key = e.key.toLowerCase();
-                if (key === 'b') {
+                if (key === "b") {
                   e.preventDefault();
-                  applyCommand('bold');
+                  applyCommand("bold");
                 }
-                if (key === 'i') {
+                if (key === "i") {
                   e.preventDefault();
-                  applyCommand('italic');
+                  applyCommand("italic");
                 }
-                if (key === 'x' && e.shiftKey) {
+                if (key === "x" && e.shiftKey) {
                   e.preventDefault();
-                  applyCommand('strikeThrough');
+                  applyCommand("strikeThrough");
                 }
               }}
               data-placeholder="Write about your professional background, expertise, and what makes you unique..."
@@ -245,11 +199,12 @@ export const ProfileEditor = ({ resume, setResume }: ProfileEditorProps) => {
           </div>
 
           <button
-            onClick={saveItem}
-            className="neo-button-primary w-full flex items-center justify-center gap-2 mt-6"
+            onClick={saveProfile}
+            disabled={saveStatus === "saving"}
+            className="neo-button-primary w-full flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            {editingItem ? 'Save Changes' : 'Add Paragraph'}
+            Save
           </button>
         </div>
       </Drawer>

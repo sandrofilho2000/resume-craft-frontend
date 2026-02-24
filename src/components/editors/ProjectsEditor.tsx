@@ -1,18 +1,16 @@
 import { Drawer } from '@/components/Drawer';
-import { Project, Resume } from '@/lib/types';
+import { useResumeContext } from '@/contexts/ResumeContext';
+import { Project } from '@/lib/types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-interface ProjectsEditorProps {
-  resume: Resume;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-}
-
-export const ProjectsEditor = ({ resume, setResume }: ProjectsEditorProps) => {
+export const ProjectsEditor = () => {
+  const { resume, setResume } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Project | null>(null);
   const [formData, setFormData] = useState<Omit<Project, 'id'>>({ name: '', description: '' });
 
+  if (!resume?.projects) return null;
   const items = resume.projects.projects;
 
   const openAddDrawer = () => {

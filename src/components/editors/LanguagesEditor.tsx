@@ -1,12 +1,8 @@
 import { Drawer } from '@/components/Drawer';
-import { LanguageItem, LanguageLevel, Resume } from '@/lib/types';
+import { useResumeContext } from '@/contexts/ResumeContext';
+import { LanguageItem, LanguageLevel } from '@/lib/types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-
-interface LanguagesEditorProps {
-  resume: Resume;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-}
 
 const LANGUAGE_LEVELS: { value: LanguageLevel; label: string }[] = [
   { value: 'beginner', label: 'Beginner' },
@@ -15,7 +11,8 @@ const LANGUAGE_LEVELS: { value: LanguageLevel; label: string }[] = [
   { value: 'native', label: 'Native / Fluent' },
 ];
 
-export const LanguagesEditor = ({ resume, setResume }: LanguagesEditorProps) => {
+export const LanguagesEditor = () => {
+  const { resume, setResume } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<LanguageItem | null>(null);
   const [formData, setFormData] = useState<Omit<LanguageItem, 'id'>>({
@@ -23,6 +20,7 @@ export const LanguagesEditor = ({ resume, setResume }: LanguagesEditorProps) => 
     level: 'intermediate',
   });
 
+  if (!resume?.languages) return null;
   const items = resume.languages.items;
 
   const openAddDrawer = () => {

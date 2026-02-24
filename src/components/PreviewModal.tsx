@@ -1,18 +1,18 @@
+import { useResumeContext } from '@/contexts/ResumeContext';
 import { useToast } from '@/hooks/use-toast';
-import { Resume } from '@/types/resume.types';
 import { Briefcase, Copy, Download, Globe, GraduationCap, Mail, X } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface PreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  resume: Resume;
 }
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => {
+export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
   const { toast } = useToast();
+  const { resume } = useResumeContext();
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -62,7 +62,7 @@ export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => 
     return `${MONTH_NAMES[month - 1]} ${year}`;
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !resume) return null;
 
   return (
     <div className="preview-modal-overlay fade-in" onClick={onClose}>
@@ -124,21 +124,21 @@ export const PreviewModal = ({ isOpen, onClose, resume }: PreviewModalProps) => 
           )}
 
           {/* Profile */}
-          {resume.profileSection != null && (
+          {resume.profile != null && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.profileSection.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.profile.title}</h2>
               <div className="space-y-2 rich-text-content">
-                <div dangerouslySetInnerHTML={{ __html: resume.profileSection.content }} />
+                <div dangerouslySetInnerHTML={{ __html: resume.profile.content }} />
               </div>
             </section>
           )}
 
           {/* Skills */}
-          {resume.skillSection.subsections.length > 0 && (
+          {resume.skills.subsections.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skillSection.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skills.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {resume.skillSection.subsections.map(group => (
+                {resume.skills.subsections.map(group => (
                   <div key={group.id} className="glass-card-subtle p-3">
                     <h3 className="text-sm font-medium text-primary mb-1">{group.title}</h3>
                     {/* <p className="text-sm text-muted-foreground">{group.description}</p> */}

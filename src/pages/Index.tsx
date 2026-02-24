@@ -1,34 +1,7 @@
 import Header from '@/components/Header';
-import { useResume } from '@/hooks/useResume';
 import { Briefcase } from 'lucide-react';
-import { useState } from 'react';
 
 const Index = () => {
-  const {
-    resetToDefaults,
-    saveStatus,
-    activeSection,
-    setActiveSection,
-  } = useResume();
-
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset? This will clear all your data and restore defaults.')) {
-      resetToDefaults();
-    }
-  };
-
-  const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  const formatDate = (month: number | null, year: number | null, isCurrent: boolean) => {
-    if (isCurrent) return 'Present';
-    if (!year) return '';
-    if (!month) return year.toString();
-    return `${MONTH_NAMES[month - 1]} ${year}`;
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

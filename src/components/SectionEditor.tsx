@@ -1,6 +1,4 @@
-import { Resume } from '@/types/resume.types';
-import { ContactSection } from '@/types/contact.types';
-import { SectionKey } from '@/types/session.types';
+import { useResumeContext } from '@/contexts/ResumeContext';
 import { ContactEditor } from './editors/ContactEditor';
 import { EducationEditor } from './editors/EducationEditor';
 import { ExperienceEditor } from './editors/ExperienceEditor';
@@ -10,39 +8,26 @@ import { ProfileEditor } from './editors/ProfileEditor';
 import { ProjectsEditor } from './editors/ProjectsEditor';
 import { SkillsEditor } from './editors/SkillsEditor';
 
-interface SectionEditorProps {
-  activeSection: SectionKey;
-  resume: Resume;
-  updateResume: (updates: Partial<Resume>) => void;
-  updateContact: (updates: Partial<ContactSection>) => void;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-}
-
-export const SectionEditor = ({
-  activeSection,
-  resume,
-  updateResume,
-  updateContact,
-  setResume,
-}: SectionEditorProps) => {
+export const SectionEditor = () => {
+  const { activeSection } = useResumeContext();
  
   switch (activeSection) {
     case 'header':
-      return <HeaderEditor resume={resume} />;
+      return <HeaderEditor />;
     case 'contact':
-      return <ContactEditor resume={resume} setResume={setResume} updateContact={updateContact} />;
+      return <ContactEditor />;
     case 'profile':
-      return <ProfileEditor resume={resume} setResume={setResume} />;
+      return <ProfileEditor />;
     case 'skills':
-      return <SkillsEditor resume={resume} setResume={setResume} />;
+      return <SkillsEditor />;
     case 'experience':
-      return <ExperienceEditor resume={resume} setResume={setResume} />;
+      return <ExperienceEditor />;
     case 'projects':
-      return <ProjectsEditor resume={resume} setResume={setResume} />;
+      return <ProjectsEditor />;
     case 'education':
-      return <EducationEditor resume={resume} setResume={setResume} />;
+      return <EducationEditor />;
     case 'languages':
-      return <LanguagesEditor resume={resume} setResume={setResume} />;
+      return <LanguagesEditor />;
     default:
       return null;
   }

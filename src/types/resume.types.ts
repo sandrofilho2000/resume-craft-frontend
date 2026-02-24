@@ -17,8 +17,8 @@ export interface Resume {
   header_role: string;
 
   contact?: ContactSection | null;
-  profileSection?: ProfileSection | null;
-  skillSection?: SkillsSection | null;
+  profile?: ProfileSection | null;
+  skills?: SkillsSection | null;
   experience?: ExperienceSection | null;
   projectsSection?: ProjectsSection | null;
   educationSection?: EducationSection | null;

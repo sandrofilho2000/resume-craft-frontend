@@ -1,24 +1,20 @@
 import { Drawer } from '@/components/Drawer';
+import { useResumeContext } from '@/contexts/ResumeContext';
 import { isValidEmail, normalizeLink } from '@/lib/validation';
-import { ContactItem, ContactSection } from '@/types/contact.types';
-import { Resume } from '@/types/resume.types';
+import { ContactItem } from '@/types/contact.types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Link as LinkIcon, Plus, Save, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
-interface ContactEditorProps {
-  resume: Resume;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-  updateContact: (updates: Partial<ContactSection>) => void;
-}
-
-export const ContactEditor = ({ resume, setResume, updateContact }: ContactEditorProps) => {
+export const ContactEditor = () => {
+  const { resume, updateContact, saveStatus } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContactItem | null>(null);
   const [formData, setFormData] = useState<Omit<ContactItem, 'id' | 'order' | 'sectionId'>>({ title: '', text: '', link: '' });
-
   const items = resume?.contact?.items ?? [];
+
+  if (!resume?.contact) return null;
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -58,20 +54,18 @@ export const ContactEditor = ({ resume, setResume, updateContact }: ContactEdito
     setDrawerOpen(false);
   };
 
-  const duplicateItem = (newItem: ContactItem) => {
+  const duplicateItem = (itemToDuplicate: ContactItem) => {
     const items = resume.contact.items;
     const nextOrder = items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 1;
     const nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
 
-    newItem = {
-      ...newItem,
+    const duplicatedItem: ContactItem = {
+      ...itemToDuplicate,
       id: nextId,
-      order: editingItem ? editingItem.order : nextOrder,
+      order: nextOrder,
     };
 
-    const newItems = editingItem
-      ? items.map(item => (item.id === editingItem.id ? newItem : item))
-      : [...items, newItem];
+    const newItems = [...items, duplicatedItem];
 
     const newContact = { ...resume.contact, items: [...newItems] }
 
@@ -99,33 +93,20 @@ export const ContactEditor = ({ resume, setResume, updateContact }: ContactEdito
     });
   };
 
-  const moveItem = (index: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
+  const moveItem = (index: number, direction: "up" | "down") => {
+    if (!resume?.contact?.items) return;
 
+    const newIndex = direction === "up" ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= resume.contact.items.length) return;
 
     const newItems = [...resume.contact.items];
+    [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
 
-    [newItems[index], newItems[newIndex]] = [
-      newItems[newIndex],
-      newItems[index],
-    ];
+    const reordered = newItems.map((item, i) => ({ ...item, order: i + 1 }));
+    const nextContact = { ...resume.contact, items: reordered };
 
-    const reordered = newItems.map((item, i) => ({
-      ...item,
-      order: i + 1,
-    }));
-
-    const newContact = {
-      ...resume.contact,
-      items: reordered,
-    };
-
-    updateContact(newContact);
+    updateContact(nextContact);
   };
-
-  useEffect(() => {
-  }, [resume])
 
   const isEmailField = formData.title.toLowerCase().includes('email');
   const emailError = isEmailField && formData.text && !isValidEmail(formData.text);
@@ -159,19 +140,19 @@ export const ContactEditor = ({ resume, setResume, updateContact }: ContactEdito
               </div>
 
               <div className="flex items-center gap-1">
-                <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="action-btn disabled:opacity-30">
+                <button onClick={() => moveItem(index, 'up')} disabled={index === 0 || saveStatus === "saving"} className="action-btn disabled:opacity-30">
                   <ChevronUp className="w-4 h-4" />
                 </button>
-                <button onClick={() => moveItem(index, 'down')} disabled={index === items.length - 1} className="action-btn disabled:opacity-30">
+                <button onClick={() => moveItem(index, 'down')} disabled={index === items.length - 1 || saveStatus === "saving"} className="action-btn disabled:opacity-30">
                   <ChevronDown className="w-4 h-4" />
                 </button>
-                <button onClick={() => openEditDrawer(item)} className="action-btn">
+                <button onClick={() => openEditDrawer(item)} disabled={saveStatus === "saving"} className="action-btn">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => duplicateItem(item)} className="action-btn">
+                <button onClick={() => duplicateItem(item)} disabled={saveStatus === "saving"} className="action-btn">
                   <Copy className="w-4 h-4" />
                 </button>
-                <button onClick={() => deleteItem(item.id)} className="action-btn-danger">
+                <button onClick={() => deleteItem(item.id)} disabled={saveStatus === "saving"} className="action-btn-danger">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

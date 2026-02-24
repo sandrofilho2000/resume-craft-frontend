@@ -1,13 +1,10 @@
+import { useResumeContext } from '@/contexts/ResumeContext';
 import { Check, Eye, FileText, Loader2, Menu, RotateCcw, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-interface HeaderProps {
-    resetToDefaults?: () => void;
-    saveStatus?: 'idle' | 'saving' | 'saved';
-}
-
-const Header = ({ resetToDefaults, saveStatus }: HeaderProps) => {
+const Header = () => {
+    const { resetToDefaults, saveStatus } = useResumeContext();
     const { id } = useParams()
     const [previewOpen, setPreviewOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);

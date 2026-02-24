@@ -1,15 +1,15 @@
+import { useResumeContext } from '@/contexts/ResumeContext';
 import { sectionConfigs } from '@/lib/sectionConfigs';
 import { cn } from '@/lib/utils';
-import { Resume } from '@/types/resume.types';
 import { SectionKey } from '@/types/session.types';
 
 interface OutlineProps {
-  resume: Resume;
-  activeSection: SectionKey;
-  onSectionChange: (section: SectionKey) => void;
+  onSectionChange?: (section: SectionKey) => void;
 }
 
-export const Outline = ({ resume, activeSection, onSectionChange }: OutlineProps) => {
+export const Outline = ({ onSectionChange }: OutlineProps) => {
+  const { activeSection, setActiveSection } = useResumeContext();
+
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-border">
@@ -26,7 +26,10 @@ export const Outline = ({ resume, activeSection, onSectionChange }: OutlineProps
           return (
             <button
               key={key}
-              onClick={() => onSectionChange(key)}
+              onClick={() => {
+                setActiveSection(key);
+                onSectionChange?.(key);
+              }}
               className={cn(
                 'outline-item w-full text-left',
                 isActive && 'active'

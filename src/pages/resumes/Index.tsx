@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 import { Outline } from '@/components/Outline';
 import { PreviewModal } from '@/components/PreviewModal';
 import { SectionEditor } from '@/components/SectionEditor';
-import { useResume } from '@/hooks/useResume';
+import { useResumeContext } from '@/contexts/ResumeContext';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -12,22 +12,25 @@ const ResumePage = () => {
 
   const {
     resume,
-    updateResume,
-    updateContact,
     setResume,
-    resetToDefaults,
-    saveStatus,
     activeSection,
-    setActiveSection,
-  } = useResume();
+  } = useResumeContext();
 
 
   useEffect(() => {
     if (id) {
       getResumeById(Number(id), activeSection).then((result) => {
-        let newResume = activeSection !== "header" ? {...resume, ...result} : {...result, ...resume}
-        console.log("🚀 ~ ResumePage ~ newResume:", newResume)
-        setResume(newResume)
+        setResume((prev) => {
+          if (!prev) return result as any;
+
+          const newResume =
+            activeSection !== "header"
+              ? { ...prev, ...result }
+              : { ...result, ...prev };
+
+          console.log("ResumePage merged resume:", newResume)
+          return newResume;
+        })
       })
     }
   }, [id, activeSection])
@@ -36,16 +39,10 @@ const ResumePage = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset? This will clear all your data and restore defaults.')) {
-      resetToDefaults();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <Header resetToDefaults={resetToDefaults} saveStatus={saveStatus} />
+      <Header />
 
       {/* Main Layout */}
       <div className="flex">
@@ -60,10 +57,7 @@ const ResumePage = () => {
           `}
         >
           <Outline
-            resume={resume}
-            activeSection={activeSection}
-            onSectionChange={(section) => {
-              setActiveSection(section);
+            onSectionChange={() => {
               setSidebarOpen(false);
             }}
           />
@@ -80,13 +74,7 @@ const ResumePage = () => {
           resume ? (
             <main className="flex-1 min-h-[calc(100vh-4rem)] p-4 md:p-8">
               <div className="max-w-3xl mx-auto">
-                <SectionEditor
-                  activeSection={activeSection}
-                  resume={resume}
-                  updateResume={updateResume}
-                  updateContact={updateContact}
-                  setResume={setResume}
-                />
+                <SectionEditor />
               </div>
               <button className='neo-button-primary flex items-center justify-center gap-2 mt-6 disabled:opacity-50 w-8 h-8 rounded-full fixed bottom-4 p-0 right-4 z-30'>
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0,0,256,256">
@@ -123,7 +111,6 @@ const ResumePage = () => {
       <PreviewModal
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        resume={resume}
       />
     </div>
   );

@@ -1,17 +1,14 @@
 import { Drawer } from '@/components/Drawer';
-import { EducationItem, Resume } from '@/lib/types';
+import { useResumeContext } from '@/contexts/ResumeContext';
+import { EducationItem } from '@/lib/types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-
-interface EducationEditorProps {
-  resume: Resume;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-}
 
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-export const EducationEditor = ({ resume, setResume }: EducationEditorProps) => {
+export const EducationEditor = () => {
+  const { resume, setResume } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<EducationItem | null>(null);
   const [formData, setFormData] = useState<Omit<EducationItem, 'id'>>({
@@ -22,6 +19,7 @@ export const EducationEditor = ({ resume, setResume }: EducationEditorProps) => 
     is_current: false,
   });
 
+  if (!resume?.education) return null;
   const items = resume.education.items;
 
   const openAddDrawer = () => {

@@ -1,20 +1,25 @@
 import { Drawer } from '@/components/Drawer';
-import { Resume } from '@/types/resume.types';
-import { SkillsSubSection } from '@/types/skills.types';
-import { ChevronDown, ChevronUp, Copy, Edit2, Plus, Save, Trash2 } from 'lucide-react';
+import { useResumeContext } from '@/contexts/ResumeContext';
+import { SkillsItem, SkillsSubSection } from '@/types/skills.types';
+import { ChevronDown, ChevronUp, Copy, Edit2, Plus, PlusCircle, Save, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
-interface SkillsEditorProps {
-  resume: Resume;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-}
+type SkillGroupForm = {
+  title: string;
+  skills: SkillsItem[];
+};
 
-export const SkillsEditor = ({ resume, setResume }: SkillsEditorProps) => {
+export const SkillsEditor = () => {
+  const { resume, setResume } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<SkillsSubSection | null>(null);
-  const [formData, setFormData] = useState<Omit<SkillsSubSection, 'id' | 'skillsSectionId' | 'order'>>({ title: '', skills: [] });
+  const [formData, setFormData] = useState<SkillGroupForm>({ title: '', skills: [] });
 
-  const subsections = resume.skillSection.subsections;
+  if (!resume?.skills) return null;
+
+  const subsections = resume.skills.subsections;
+
+  const sortSkills = (skills: SkillsItem[]) => [...skills].sort((a, b) => a.order - b.order);
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -24,59 +29,187 @@ export const SkillsEditor = ({ resume, setResume }: SkillsEditorProps) => {
 
   const openEditDrawer = (item: SkillsSubSection) => {
     setEditingItem(item);
-    setFormData({ title: item.title, skills: [] });
+    setFormData({
+      title: item.title,
+      skills: sortSkills(item.skills).map((skill) => ({ ...skill })),
+    });
     setDrawerOpen(true);
   };
 
+  const getNextSubsectionId = (items: SkillsSubSection[]) =>
+    items.length > 0 ? Math.max(...items.map((item) => item.id)) + 1 : 1;
+
+  const getNextSkillId = (items: SkillsSubSection[]) => {
+    const allSkills = items.flatMap((item) => item.skills);
+    return allSkills.length > 0 ? Math.max(...allSkills.map((skill) => skill.id)) + 1 : 1;
+  };
+
+  const normalizeSkillsForGroup = (groupId: number, skills: SkillsItem[]) =>
+    skills
+      .map((skill) => ({ ...skill, name: skill.name.trim() }))
+      .filter((skill) => skill.name.length > 0)
+      .map((skill, index) => ({
+        ...skill,
+        order: index,
+        subSectionId: groupId,
+      }));
+
   const saveItem = () => {
-    setResume(prev => {
-      const newItems = editingItem
-        ? prev.skillSection.subsections.map(item => 
-            item.id === editingItem.id 
-              ? { ...item, ...formData }
-              : item
+    setResume((prev) => {
+      if (!prev?.skills) return prev as any;
+
+      const currentSubsections = prev.skills.subsections;
+      const groupId = editingItem?.id ?? getNextSubsectionId(currentSubsections);
+      const normalizedSkills = normalizeSkillsForGroup(groupId, formData.skills);
+
+      const nextSubsections = editingItem
+        ? currentSubsections.map((item) =>
+            item.id === editingItem.id
+              ? {
+                  ...item,
+                  title: formData.title,
+                  skills: normalizedSkills,
+                }
+              : item,
           )
-        : [...prev.skillSection.subsections, { id: 1, ...formData }];
-      
+        : [
+            ...currentSubsections,
+            {
+              id: groupId,
+              title: formData.title,
+              order: currentSubsections.length,
+              skillsSectionId: prev.skills.id,
+              skills: normalizedSkills,
+            },
+          ];
+
       return {
         ...prev,
-        skills: { ...prev.skillSection, groups: newItems },
+        skills: {
+          ...prev.skills,
+          subsections: nextSubsections.map((item, index) => ({ ...item, order: index })),
+        },
       };
     });
-    
+
     setDrawerOpen(false);
   };
 
   const duplicateItem = (item: SkillsSubSection) => {
-    setResume(prev => ({
-      ...prev,
-      skills: {
-        ...prev.skillSection,
-        groups: [...prev.skillSection.subsections, { ...item, id: 1 }],
-      },
-    }));
+    setResume((prev) => {
+      if (!prev?.skills) return prev as any;
+
+      const nextSubsectionId = getNextSubsectionId(prev.skills.subsections);
+      let nextSkillId = getNextSkillId(prev.skills.subsections);
+
+      const duplicatedSkills = sortSkills(item.skills).map((skill, index) => ({
+        ...skill,
+        id: nextSkillId++,
+        order: index,
+        subSectionId: nextSubsectionId,
+      }));
+
+      const duplicatedGroup: SkillsSubSection = {
+        ...item,
+        id: nextSubsectionId,
+        order: prev.skills.subsections.length,
+        skillsSectionId: prev.skills.id,
+        title: `${item.title} Copy`,
+        skills: duplicatedSkills,
+      };
+
+      return {
+        ...prev,
+        skills: {
+          ...prev.skills,
+          subsections: [...prev.skills.subsections, duplicatedGroup],
+        },
+      };
+    });
   };
 
   const deleteItem = (id: number) => {
-    setResume(prev => ({
-      ...prev,
-      skills: {
-        ...prev.skillSection,
-        groups: prev.skillSection.subsections.filter(item => item.id !== id),
-      },
-    }));
+    setResume((prev) => {
+      if (!prev?.skills) return prev as any;
+
+      const nextSubsections = prev.skills.subsections
+        .filter((item) => item.id !== id)
+        .map((item, index) => ({ ...item, order: index }));
+
+      return {
+        ...prev,
+        skills: {
+          ...prev.skills,
+          subsections: nextSubsections,
+        },
+      };
+    });
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= subsections.length) return;
-    
-    setResume(prev => {
-      const newItems = [...prev.skillSection.subsections];
+
+    setResume((prev) => {
+      if (!prev?.skills) return prev as any;
+
+      const newItems = [...prev.skills.subsections];
       [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+
       return {
         ...prev,
-        skills: { ...prev.skillSection, groups: newItems },
+        skills: {
+          ...prev.skills,
+          subsections: newItems.map((item, idx) => ({ ...item, order: idx })),
+        },
+      };
+    });
+  };
+
+  const addSkill = () => {
+    const nextId = formData.skills.length > 0 ? Math.max(...formData.skills.map((skill) => skill.id)) + 1 : 1;
+    const currentGroupId = editingItem?.id ?? 0;
+
+    setFormData((prev) => ({
+      ...prev,
+      skills: [
+        ...prev.skills,
+        {
+          id: nextId,
+          name: '',
+          order: prev.skills.length,
+          subSectionId: currentGroupId,
+        },
+      ],
+    }));
+  };
+
+  const updateSkill = (id: number, name: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      skills: prev.skills.map((skill) => (skill.id === id ? { ...skill, name } : skill)),
+    }));
+  };
+
+  const removeSkill = (id: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      skills: prev.skills
+        .filter((skill) => skill.id !== id)
+        .map((skill, index) => ({ ...skill, order: index })),
+    }));
+  };
+
+  const moveSkill = (index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= formData.skills.length) return;
+
+    setFormData((prev) => {
+      const newSkills = [...prev.skills];
+      [newSkills[index], newSkills[newIndex]] = [newSkills[newIndex], newSkills[index]];
+      return {
+        ...prev,
+        skills: newSkills.map((skill, idx) => ({ ...skill, order: idx })),
       };
     });
   };
@@ -100,14 +233,18 @@ export const SkillsEditor = ({ resume, setResume }: SkillsEditorProps) => {
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-semibold text-primary">{subsection.title || 'Untitled'}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">{}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {sortSkills(subsection.skills)
+                    .map((skill) => skill.name)
+                    .join(', ') || 'No skills added'}
+                </p>
               </div>
-              
+
               <div className="flex items-center gap-1">
                 <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="action-btn disabled:opacity-30">
                   <ChevronUp className="w-4 h-4" />
                 </button>
-                <button onClick={() => moveItem(index, 'down')} disabled={index === subsection.skills.length - 1} className="action-btn disabled:opacity-30">
+                <button onClick={() => moveItem(index, 'down')} disabled={index === subsections.length - 1} className="action-btn disabled:opacity-30">
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 <button onClick={() => openEditDrawer(subsection)} className="action-btn">
@@ -123,7 +260,7 @@ export const SkillsEditor = ({ resume, setResume }: SkillsEditorProps) => {
             </div>
           </div>
         ))}
-        
+
         {subsections.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No skill groups yet. Click "Add Skill Group" to create one.
@@ -131,8 +268,8 @@ export const SkillsEditor = ({ resume, setResume }: SkillsEditorProps) => {
         )}
       </div>
 
-      <Drawer 
-        isOpen={drawerOpen} 
+      <Drawer
+        isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         title={editingItem ? 'Edit Skill Group' : 'Add Skill Group'}
       >
@@ -142,24 +279,54 @@ export const SkillsEditor = ({ resume, setResume }: SkillsEditorProps) => {
             <input
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
               className="neo-input"
               placeholder="e.g., Frontend, Backend, DevOps"
             />
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-2">Skills (comma-separated)</label>
-            <textarea
-              value={"formData.text"}
-              onChange={(e) => setFormData(prev => ({ ...prev, text: e.target.value }))}
-              className="neo-textarea"
-              placeholder="e.g., React, TypeScript, Next.js, Tailwind CSS"
-            />
+
+          <div className="pt-4 border-t border-border">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium text-muted-foreground">Skills</label>
+              <button onClick={addSkill} className="neo-button text-xs flex items-center gap-1" type="button">
+                <PlusCircle className="w-3 h-3" />
+                Add Skill
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {formData.skills.map((skill, index) => (
+                <div key={skill.id} className="flex items-start gap-2">
+                  <span className="text-primary mt-3">�</span>
+                  <input
+                    type="text"
+                    value={skill.name}
+                    onChange={(e) => updateSkill(skill.id, e.target.value)}
+                    className="neo-input flex-1 py-2 text-sm"
+                    placeholder="e.g., React, NestJS, Prisma"
+                  />
+                  <div className="flex flex-col gap-1">
+                    <button onClick={() => moveSkill(index, 'up')} disabled={index === 0} className="action-btn disabled:opacity-30 p-1" type="button">
+                      <ChevronUp className="w-3 h-3" />
+                    </button>
+                    <button onClick={() => moveSkill(index, 'down')} disabled={index === formData.skills.length - 1} className="action-btn disabled:opacity-30 p-1" type="button">
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <button onClick={() => removeSkill(skill.id)} className="action-btn-danger mt-2" type="button">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+
+              {formData.skills.length === 0 && (
+                <p className="text-xs text-muted-foreground py-2">No skills yet. Click "Add Skill" to add items.</p>
+              )}
+            </div>
           </div>
-          
-          <button 
-            onClick={saveItem} 
+
+          <button
+            onClick={saveItem}
             className="neo-button-primary w-full flex items-center justify-center gap-2 mt-6"
           >
             <Save className="w-4 h-4" />

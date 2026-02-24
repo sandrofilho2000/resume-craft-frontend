@@ -1,12 +1,8 @@
 import { Drawer } from '@/components/Drawer';
-import { Job, Resume } from '@/lib/types';
+import { useResumeContext } from '@/contexts/ResumeContext';
+import { ExperienceJob } from '@/types/experience.types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, PlusCircle, Save, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
-
-interface ExperienceEditorProps {
-  resume: Resume;
-  setResume: React.Dispatch<React.SetStateAction<Resume>>;
-}
 
 const MONTHS = [
   { value: 1, label: 'January' },
@@ -26,20 +22,22 @@ const MONTHS = [
 const currentYear = new Date().getFullYear();
 const YEARS = Array.from({ length: 30 }, (_, i) => currentYear - i);
 
-export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) => {
+export const ExperienceEditor = () => {
+  const { resume, setResume } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const [formData, setFormData] = useState<Omit<Job, 'id'>>({
+  const [editingJob, setEditingJob] = useState<ExperienceJob | null>(null);
+  const [formData, setFormData] = useState<Omit<ExperienceJob, 'id'>>({
     company: '',
     role: '',
-    start_month: 1,
-    start_year: currentYear,
-    end_month: null,
-    end_year: null,
-    is_current: true,
+    startMonth: 1,
+    startYear: currentYear,
+    endMonth: null,
+    endYear: null,
+    isCurrent: true,
     bullets: [],
   });
 
+  if (!resume?.experience) return null;
   const jobs = resume.experience.jobs;
 
   const openAddDrawer = () => {
@@ -47,26 +45,26 @@ export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) =
     setFormData({
       company: '',
       role: '',
-      start_month: 1,
-      start_year: currentYear,
-      end_month: null,
-      end_year: null,
-      is_current: true,
+      startMonth: 1,
+      startYear: currentYear,
+      endMonth: null,
+      endYear: null,
+      isCurrent: true,
       bullets: [],
     });
     setDrawerOpen(true);
   };
 
-  const openEditDrawer = (job: Job) => {
+  const openEditDrawer = (job: ExperienceJob) => {
     setEditingJob(job);
     setFormData({
       company: job.company,
       role: job.role,
-      start_month: job.start_month,
-      start_year: job.start_year,
-      end_month: job.end_month,
-      end_year: job.end_year,
-      is_current: job.is_current,
+      startMonth: job.startMonth,
+      startYear: job.startYear,
+      endMonth: job.endMonth,
+      endYear: job.endYear,
+      isCurrent: job.isCurrent,
       bullets: [...job.bullets],
     });
     setDrawerOpen(true);
@@ -91,7 +89,7 @@ export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) =
     setDrawerOpen(false);
   };
 
-  const duplicateJob = (job: Job) => {
+  const duplicateJob = (job: ExperienceJob) => {
     const newBullets = job.bullets.map(b => ({ ...b, id: 1 }));
     setResume(prev => ({
       ...prev,
@@ -184,7 +182,7 @@ export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) =
                 <h3 className="text-sm font-semibold text-foreground">{job.role || 'Untitled Role'}</h3>
                 <p className="text-sm text-primary">{job.company || 'No company'}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {formatDate(job.start_month, job.start_year)} — {job.is_current ? 'Present' : job.end_month && job.end_year ? formatDate(job.end_month, job.end_year) : 'N/A'}
+                  {formatDate(job.startMonth, job.startYear)} — {job.isCurrent ? 'Present' : job.endMonth && job.endYear ? formatDate(job.endMonth, job.endYear) : 'N/A'}
                 </p>
                 {job.bullets.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">{job.bullets.length} bullet point(s)</p>
@@ -251,8 +249,8 @@ export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) =
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-2">Start Month</label>
               <select
-                value={formData.start_month}
-                onChange={(e) => setFormData(prev => ({ ...prev, start_month: Number(e.target.value) }))}
+                value={formData.startMonth}
+                onChange={(e) => setFormData(prev => ({ ...prev, startMonth: Number(e.target.value) }))}
                 className="neo-input"
               >
                 {MONTHS.map(m => (
@@ -263,8 +261,8 @@ export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) =
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-2">Start Year</label>
               <select
-                value={formData.start_year}
-                onChange={(e) => setFormData(prev => ({ ...prev, start_year: Number(e.target.value) }))}
+                value={formData.startYear}
+                onChange={(e) => setFormData(prev => ({ ...prev, startYear: Number(e.target.value) }))}
                 className="neo-input"
               >
                 {YEARS.map(y => (
@@ -277,26 +275,26 @@ export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) =
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              id="is_current"
-              checked={formData.is_current}
+              id="isCurrent"
+              checked={formData.isCurrent}
               onChange={(e) => setFormData(prev => ({ 
                 ...prev, 
-                is_current: e.target.checked,
-                end_month: e.target.checked ? null : currentYear >= prev.start_year ? 1 : null,
-                end_year: e.target.checked ? null : currentYear,
+                isCurrent: e.target.checked,
+                endMonth: e.target.checked ? null : currentYear >= prev.startYear ? 1 : null,
+                endYear: e.target.checked ? null : currentYear,
               }))}
               className="w-4 h-4 rounded bg-secondary border-border"
             />
-            <label htmlFor="is_current" className="text-sm text-foreground">Currently working here</label>
+            <label htmlFor="isCurrent" className="text-sm text-foreground">Currently working here</label>
           </div>
 
-          {!formData.is_current && (
+          {!formData.isCurrent && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-2">End Month</label>
                 <select
-                  value={formData.end_month || 1}
-                  onChange={(e) => setFormData(prev => ({ ...prev, end_month: Number(e.target.value) }))}
+                  value={formData.endMonth || 1}
+                  onChange={(e) => setFormData(prev => ({ ...prev, endMonth: Number(e.target.value) }))}
                   className="neo-input"
                 >
                   {MONTHS.map(m => (
@@ -307,8 +305,8 @@ export const ExperienceEditor = ({ resume, setResume }: ExperienceEditorProps) =
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-2">End Year</label>
                 <select
-                  value={formData.end_year || currentYear}
-                  onChange={(e) => setFormData(prev => ({ ...prev, end_year: Number(e.target.value) }))}
+                  value={formData.endYear || currentYear}
+                  onChange={(e) => setFormData(prev => ({ ...prev, endYear: Number(e.target.value) }))}
                   className="neo-input"
                 >
                   {YEARS.map(y => (

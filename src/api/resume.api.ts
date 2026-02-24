@@ -1,6 +1,7 @@
 // src/api/resume.api.ts
 
 import { ContactSection } from '@/types/contact.types';
+import { ProfileSection } from '@/types/profile.types';
 import type { Resume } from '@/types/resume.types';
 import { http } from './http';
 
@@ -12,6 +13,7 @@ export type CreateResumeDTO = {
 
 export type EditResumeDTO = Partial<CreateResumeDTO>;
 export type EditContactDTO = Partial<ContactSection>;
+export type EditProfileDTO = Partial<ProfileSection>;
 
 export async function getResumeById(id: number, mode='') {
   let result = await http<Resume>(`/resume/${id}/${mode}`);
@@ -42,6 +44,13 @@ export async function editResume(id: number, dto: EditResumeDTO, route="") {
 export async function editContact(resumeId: number, dto: EditContactDTO) {
   return http<ContactSection, EditContactDTO>(`/resume/${resumeId}/contact`, {
     method: 'PUT',
+    body: dto,
+  });
+}
+
+export async function editProfile(resumeId: number, dto: EditProfileDTO) {
+  return http<ProfileSection, EditProfileDTO>(`/resume/${resumeId}/profile`, {
+    method: 'POST',
     body: dto,
   });
 }

@@ -1,12 +1,9 @@
-import { useResume } from "@/hooks/useResume";
-import { Resume } from "@/types/resume.types";
+import { useResumeContext } from "@/contexts/ResumeContext";
 
-interface HeaderEditorProps {
-  resume: Resume;
-}
+export const HeaderEditor = () => {
+  const { resume, updateResume } = useResumeContext();
+  if (!resume) return null;
 
-export const HeaderEditor = ({ resume }: HeaderEditorProps) => {
-  const { updateResume } = useResume()
   return (
     <div className="space-y-6 fade-in">
       <div className="section-header">
