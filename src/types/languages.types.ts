@@ -6,10 +6,12 @@ export interface LanguageItem {
   language: string;
   level: LanguageLevel;
   order: number;
+  sectionId?: number;
 }
 
 export interface LanguagesSection {
   id: number;
   title: string;
+  resumeId?: number;
   items: LanguageItem[];
 }

@@ -9,17 +9,35 @@ type SkillGroupForm = {
   skills: SkillsItem[];
 };
 
+const ensureSkillsArray = (skills?: SkillsItem[] | null): SkillsItem[] => (Array.isArray(skills) ? skills : []);
+const ensureSubsectionsArray = (subsections?: SkillsSubSection[] | null): SkillsSubSection[] =>
+  Array.isArray(subsections) ? subsections : [];
+
 export const SkillsEditor = () => {
-  const { resume, setResume } = useResumeContext();
+  const { resume, updateSkills, saveStatus } = useResumeContext();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<SkillsSubSection | null>(null);
   const [formData, setFormData] = useState<SkillGroupForm>({ title: '', skills: [] });
 
   if (!resume?.skills) return null;
 
-  const subsections = resume.skills.subsections;
+  const subsections = ensureSubsectionsArray(resume.skills.subsections);
 
-  const sortSkills = (skills: SkillsItem[]) => [...skills].sort((a, b) => a.order - b.order);
+  const sortSkills = (skills?: SkillsItem[] | null) => [...ensureSkillsArray(skills)].sort((a, b) => a.order - b.order);
+  const normalizeSubsections = (items: SkillsSubSection[]) =>
+    ensureSubsectionsArray(items).map((item, index) => ({
+      ...item,
+      order: index,
+      skills: sortSkills(item.skills).map((skill, skillIndex) => ({ ...skill, order: skillIndex, subSectionId: item.id })),
+    }));
+
+  const commitSkills = (nextSubsections: SkillsSubSection[]) => {
+    updateSkills({
+      ...resume.skills,
+      resumeId: resume.skills.resumeId ?? resume.id,
+      subsections: normalizeSubsections(nextSubsections),
+    });
+  };
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -40,7 +58,7 @@ export const SkillsEditor = () => {
     items.length > 0 ? Math.max(...items.map((item) => item.id)) + 1 : 1;
 
   const getNextSkillId = (items: SkillsSubSection[]) => {
-    const allSkills = items.flatMap((item) => item.skills);
+    const allSkills = ensureSubsectionsArray(items).flatMap((item) => ensureSkillsArray(item.skills));
     return allSkills.length > 0 ? Math.max(...allSkills.map((skill) => skill.id)) + 1 : 1;
   };
 
@@ -55,115 +73,72 @@ export const SkillsEditor = () => {
       }));
 
   const saveItem = () => {
-    setResume((prev) => {
-      if (!prev?.skills) return prev as any;
+    const currentSubsections = ensureSubsectionsArray(resume.skills.subsections);
+    const groupId = editingItem?.id ?? getNextSubsectionId(currentSubsections);
+    const normalizedSkills = normalizeSkillsForGroup(groupId, formData.skills);
 
-      const currentSubsections = prev.skills.subsections;
-      const groupId = editingItem?.id ?? getNextSubsectionId(currentSubsections);
-      const normalizedSkills = normalizeSkillsForGroup(groupId, formData.skills);
+    const nextSubsections = editingItem
+      ? currentSubsections.map((item) =>
+          item.id === editingItem.id
+            ? {
+                ...item,
+                title: formData.title,
+                skills: normalizedSkills,
+              }
+            : item,
+        )
+      : [
+          ...currentSubsections,
+          {
+            id: groupId,
+            title: formData.title,
+            order: currentSubsections.length,
+            skillsSectionId: resume.skills.id,
+            skills: normalizedSkills,
+          },
+        ];
 
-      const nextSubsections = editingItem
-        ? currentSubsections.map((item) =>
-            item.id === editingItem.id
-              ? {
-                  ...item,
-                  title: formData.title,
-                  skills: normalizedSkills,
-                }
-              : item,
-          )
-        : [
-            ...currentSubsections,
-            {
-              id: groupId,
-              title: formData.title,
-              order: currentSubsections.length,
-              skillsSectionId: prev.skills.id,
-              skills: normalizedSkills,
-            },
-          ];
-
-      return {
-        ...prev,
-        skills: {
-          ...prev.skills,
-          subsections: nextSubsections.map((item, index) => ({ ...item, order: index })),
-        },
-      };
-    });
+    commitSkills(nextSubsections);
 
     setDrawerOpen(false);
   };
 
   const duplicateItem = (item: SkillsSubSection) => {
-    setResume((prev) => {
-      if (!prev?.skills) return prev as any;
+    const currentSubsections = ensureSubsectionsArray(resume.skills.subsections);
+    const nextSubsectionId = getNextSubsectionId(currentSubsections);
+    let nextSkillId = getNextSkillId(currentSubsections);
 
-      const nextSubsectionId = getNextSubsectionId(prev.skills.subsections);
-      let nextSkillId = getNextSkillId(prev.skills.subsections);
+    const duplicatedSkills = sortSkills(item.skills).map((skill, index) => ({
+      ...skill,
+      id: nextSkillId++,
+      order: index,
+      subSectionId: nextSubsectionId,
+    }));
 
-      const duplicatedSkills = sortSkills(item.skills).map((skill, index) => ({
-        ...skill,
-        id: nextSkillId++,
-        order: index,
-        subSectionId: nextSubsectionId,
-      }));
+    const duplicatedGroup: SkillsSubSection = {
+      ...item,
+      id: nextSubsectionId,
+      order: currentSubsections.length,
+      skillsSectionId: resume.skills.id,
+      title: item.title,
+      skills: duplicatedSkills,
+    };
 
-      const duplicatedGroup: SkillsSubSection = {
-        ...item,
-        id: nextSubsectionId,
-        order: prev.skills.subsections.length,
-        skillsSectionId: prev.skills.id,
-        title: `${item.title} Copy`,
-        skills: duplicatedSkills,
-      };
-
-      return {
-        ...prev,
-        skills: {
-          ...prev.skills,
-          subsections: [...prev.skills.subsections, duplicatedGroup],
-        },
-      };
-    });
+    commitSkills([...currentSubsections, duplicatedGroup]);
   };
 
   const deleteItem = (id: number) => {
-    setResume((prev) => {
-      if (!prev?.skills) return prev as any;
-
-      const nextSubsections = prev.skills.subsections
-        .filter((item) => item.id !== id)
-        .map((item, index) => ({ ...item, order: index }));
-
-      return {
-        ...prev,
-        skills: {
-          ...prev.skills,
-          subsections: nextSubsections,
-        },
-      };
-    });
+    const nextSubsections = ensureSubsectionsArray(resume.skills.subsections).filter((item) => item.id !== id);
+    commitSkills(nextSubsections);
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= subsections.length) return;
 
-    setResume((prev) => {
-      if (!prev?.skills) return prev as any;
-
-      const newItems = [...prev.skills.subsections];
-      [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
-
-      return {
-        ...prev,
-        skills: {
-          ...prev.skills,
-          subsections: newItems.map((item, idx) => ({ ...item, order: idx })),
-        },
-      };
-    });
+    const newItems = [...subsections];
+    [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
+    commitSkills(newItems);
   };
 
   const addSkill = () => {
@@ -221,7 +196,11 @@ export const SkillsEditor = () => {
           Skills
           <span className="count-badge">{subsections.length}</span>
         </h2>
-        <button onClick={openAddDrawer} className="neo-button-primary flex items-center gap-2 text-sm">
+        <button
+          onClick={openAddDrawer}
+          disabled={saveStatus === 'saving'}
+          className="neo-button-primary flex items-center gap-2 text-sm disabled:opacity-50"
+        >
           <Plus className="w-4 h-4" />
           Add Skill Group
         </button>
@@ -241,19 +220,19 @@ export const SkillsEditor = () => {
               </div>
 
               <div className="flex items-center gap-1">
-                <button onClick={() => moveItem(index, 'up')} disabled={index === 0} className="action-btn disabled:opacity-30">
+                <button onClick={() => moveItem(index, 'up')} disabled={index === 0 || saveStatus === 'saving'} className="action-btn disabled:opacity-30">
                   <ChevronUp className="w-4 h-4" />
                 </button>
-                <button onClick={() => moveItem(index, 'down')} disabled={index === subsections.length - 1} className="action-btn disabled:opacity-30">
+                <button onClick={() => moveItem(index, 'down')} disabled={index === subsections.length - 1 || saveStatus === 'saving'} className="action-btn disabled:opacity-30">
                   <ChevronDown className="w-4 h-4" />
                 </button>
-                <button onClick={() => openEditDrawer(subsection)} className="action-btn">
+                <button onClick={() => openEditDrawer(subsection)} disabled={saveStatus === 'saving'} className="action-btn disabled:opacity-30">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => duplicateItem(subsection)} className="action-btn">
+                <button onClick={() => duplicateItem(subsection)} disabled={saveStatus === 'saving'} className="action-btn disabled:opacity-30">
                   <Copy className="w-4 h-4" />
                 </button>
-                <button onClick={() => deleteItem(subsection.id)} className="action-btn-danger">
+                <button onClick={() => deleteItem(subsection.id)} disabled={saveStatus === 'saving'} className="action-btn-danger disabled:opacity-30">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -297,7 +276,7 @@ export const SkillsEditor = () => {
             <div className="space-y-2">
               {formData.skills.map((skill, index) => (
                 <div key={skill.id} className="flex items-start gap-2">
-                  <span className="text-primary mt-3">�</span>
+                  <span className="text-primary mt-3">*</span>
                   <input
                     type="text"
                     value={skill.name}
@@ -327,7 +306,8 @@ export const SkillsEditor = () => {
 
           <button
             onClick={saveItem}
-            className="neo-button-primary w-full flex items-center justify-center gap-2 mt-6"
+            disabled={saveStatus === 'saving'}
+            className="neo-button-primary w-full flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {editingItem ? 'Save Changes' : 'Add Skill Group'}
@@ -337,3 +317,4 @@ export const SkillsEditor = () => {
     </div>
   );
 };
+

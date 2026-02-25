@@ -189,7 +189,10 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
                 {resume.projectsSection.projects.map(project => (
                   <div key={project.id} className="glass-card-subtle p-4">
                     <h3 className="text-sm font-semibold text-foreground mb-1">{project.name}</h3>
-                    <p className="text-sm text-muted-foreground">{project.description}</p>
+                    <div
+                      className="text-sm text-muted-foreground rich-text-content"
+                      dangerouslySetInnerHTML={{ __html: project.description || '' }}
+                    />
                   </div>
                 ))}
               </div>

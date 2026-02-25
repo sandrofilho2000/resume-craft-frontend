@@ -1,8 +1,13 @@
 // src/api/resume.api.ts
 
 import { ContactSection } from '@/types/contact.types';
+import { ExperienceSection } from '@/types/experience.types';
+import { EducationSection } from '@/types/education.types';
+import { LanguagesSection } from '@/types/languages.types';
 import { ProfileSection } from '@/types/profile.types';
+import { ProjectsSection } from '@/types/projects.types';
 import type { Resume } from '@/types/resume.types';
+import { SkillsSection } from '@/types/skills.types';
 import { http } from './http';
 
 export type CreateResumeDTO = {
@@ -14,13 +19,23 @@ export type CreateResumeDTO = {
 export type EditResumeDTO = Partial<CreateResumeDTO>;
 export type EditContactDTO = Partial<ContactSection>;
 export type EditProfileDTO = Partial<ProfileSection>;
+export type EditSkillsDTO = Partial<SkillsSection>;
+export type EditExperienceDTO = Partial<ExperienceSection>;
+export type EditProjectsDTO = Partial<ProjectsSection>;
+export type EditEducationDTO = Partial<EducationSection>;
+export type EditLanguagesDTO = Partial<LanguagesSection>;
 
 export async function getResumeById(id: number, mode='') {
   let result = await http<Resume>(`/resume/${id}/${mode}`);
   let obj:any;
   if (mode !== 'header') {
     obj = {}
-    obj[mode] = result
+    const keyMap: Record<string, string> = {
+      projects: 'projectsSection',
+      education: 'educationSection',
+      languages: 'languagesSection',
+    };
+    obj[keyMap[mode] ?? mode] = result
   } else {
     obj = result;
   }
@@ -50,6 +65,36 @@ export async function editContact(resumeId: number, dto: EditContactDTO) {
 
 export async function editProfile(resumeId: number, dto: EditProfileDTO) {
   return http<ProfileSection, EditProfileDTO>(`/resume/${resumeId}/profile`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+export async function editSkills(resumeId: number, dto: EditSkillsDTO) {
+  return http<SkillsSection, EditSkillsDTO>(`/resume/${resumeId}/skills`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+export async function editExperience(resumeId: number, dto: EditExperienceDTO) {
+  return http<ExperienceSection, EditExperienceDTO>(`/resume/${resumeId}/experience`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+export async function editProjects(resumeId: number, dto: EditProjectsDTO) {
+  return http<ProjectsSection, EditProjectsDTO>(`/resume/${resumeId}/projects`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+export async function editEducation(resumeId: number, dto: EditEducationDTO) {
+  return http<EducationSection, EditEducationDTO>(`/resume/${resumeId}/education`, {
+    method: 'POST',
+    body: dto,
+  });
+}
+export async function editLanguages(resumeId: number, dto: EditLanguagesDTO) {
+  return http<LanguagesSection, EditLanguagesDTO>(`/resume/${resumeId}/languages`, {
     method: 'POST',
     body: dto,
   });
