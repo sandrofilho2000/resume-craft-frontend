@@ -17,7 +17,13 @@ export const ProjectsEditor = () => {
   const [formData, setFormData] = useState<ProjectForm>({ name: '', description: '' });
   const editorRef = useRef<HTMLDivElement | null>(null);
 
-  const projectsSection = resume?.projectsSection;
+  if (!resume) return null;
+  const projectsSection = resume.projectsSection ?? {
+    id: 0,
+    title: 'Projects',
+    resumeId: resume.id,
+    projects: [],
+  };
   const sortProjects = (items?: ProjectItem[] | null) => [...ensureProjectsArray(items)].sort((a, b) => a.order - b.order);
 
   const getEditorHtml = () => {
@@ -64,13 +70,9 @@ export const ProjectsEditor = () => {
   useEffect(() => {
     if (!drawerOpen) return;
     if (!editorRef.current) return;
-    if (!projectsSection) return;
-
     const current = editingItem?.description ?? '';
     editorRef.current.innerHTML = current;
   }, [drawerOpen, editingItem?.id, projectsSection]);
-
-  if (!resume || !projectsSection) return null;
 
   const items = sortProjects(projectsSection.projects);
 

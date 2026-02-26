@@ -12,8 +12,40 @@ import { http } from './http';
 
 export type CreateResumeDTO = {
   name: string;
-  job_title: string;
+  job_title?: string;
   company_name?: string;
+};
+
+export type CreateResumeResponse = {
+  id: number;
+  name: string;
+  job_title: string;
+  company_name: string;
+};
+
+export type ResumeBasicListItem = {
+  id: number;
+  name: string;
+  header_name: string;
+  job_title: string;
+  company_name: string;
+  meta_title: string;
+  header_role: string;
+  created_at: string;
+};
+
+export type ListResumesBasicParams = {
+  q?: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export type ResumeBasicListResponse = {
+  items: ResumeBasicListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 };
 
 export type EditResumeDTO = Partial<CreateResumeDTO>;
@@ -24,6 +56,29 @@ export type EditExperienceDTO = Partial<ExperienceSection>;
 export type EditProjectsDTO = Partial<ProjectsSection>;
 export type EditEducationDTO = Partial<EducationSection>;
 export type EditLanguagesDTO = Partial<LanguagesSection>;
+
+export async function listResumesBasic(params: ListResumesBasicParams = {}) {
+  const search = new URLSearchParams();
+  if (params.q?.trim()) search.set('q', params.q.trim());
+  if (typeof params.page === 'number') search.set('page', String(params.page));
+  if (typeof params.pageSize === 'number') search.set('pageSize', String(params.pageSize));
+
+  const suffix = search.toString() ? `?${search.toString()}` : '';
+  const data = await http<ResumeBasicListItem[] | ResumeBasicListResponse>(`/resume${suffix}`);
+
+  // Backward-compatible normalization: supports old array response and new paginated response
+  if (Array.isArray(data)) {
+    return {
+      items: data,
+      total: data.length,
+      page: params.page ?? 1,
+      pageSize: params.pageSize ?? (data.length || 10),
+      totalPages: 1,
+    } satisfies ResumeBasicListResponse;
+  }
+
+  return data;
+}
 
 export async function getResumeById(id: number, mode='') {
   let result = await http<Resume>(`/resume/${id}/${mode}`);
@@ -45,9 +100,15 @@ export async function getResumeById(id: number, mode='') {
 }
 
 export async function createResume(dto: CreateResumeDTO) {
-  return http<Resume, CreateResumeDTO>(`/resume/create`, {
+  return http<CreateResumeResponse, CreateResumeDTO>(`/resume/create`, {
     method: 'POST',
     body: dto,
+  });
+}
+
+export async function deleteResume(id: number) {
+  return http<{ success?: boolean } | Resume | string>(`/resume/${id}`, {
+    method: 'DELETE',
   });
 }
 

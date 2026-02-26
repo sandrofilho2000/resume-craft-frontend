@@ -24,9 +24,15 @@ export const SkillsEditor = () => {
     console.log("🚀 ~ SkillsEditor ~ resume:", resume)
   }, [resume])
 
-  if (!resume?.skillSection) return null;
+  if (!resume) return null;
+  const skillSection = resume.skillSection ?? {
+    id: 0,
+    title: 'Skills',
+    resumeId: resume.id,
+    subsections: [],
+  };
 
-  const subsections = ensureSubsectionsArray(resume.skillSection.subsections);
+  const subsections = ensureSubsectionsArray(skillSection.subsections);
 
   const sortSkills = (skills?: SkillsItem[] | null) => [...ensureSkillsArray(skills)].sort((a, b) => a.order - b.order);
   const normalizeSubsections = (items: SkillsSubSection[]) =>
@@ -38,8 +44,8 @@ export const SkillsEditor = () => {
 
   const commitSkills = (nextSubsections: SkillsSubSection[]) => {
     updateSkills({
-      ...resume.skillSection,
-      resumeId: resume.skillSection.resumeId ?? resume.id,
+      ...skillSection,
+      resumeId: skillSection.resumeId ?? resume.id,
       subsections: normalizeSubsections(nextSubsections),
     });
   };
@@ -78,7 +84,7 @@ export const SkillsEditor = () => {
       }));
 
   const saveItem = () => {
-    const currentSubsections = ensureSubsectionsArray(resume.skillSection.subsections);
+    const currentSubsections = ensureSubsectionsArray(skillSection.subsections);
     const groupId = editingItem?.id ?? getNextSubsectionId(currentSubsections);
     const normalizedSkills = normalizeSkillsForGroup(groupId, formData.skills);
 
@@ -98,7 +104,7 @@ export const SkillsEditor = () => {
             id: groupId,
             title: formData.title,
             order: currentSubsections.length,
-            skillsSectionId: resume.skillSection.id,
+            skillsSectionId: skillSection.id,
             skills: normalizedSkills,
           },
         ];
@@ -109,7 +115,7 @@ export const SkillsEditor = () => {
   };
 
   const duplicateItem = (item: SkillsSubSection) => {
-    const currentSubsections = ensureSubsectionsArray(resume.skillSection.subsections);
+    const currentSubsections = ensureSubsectionsArray(skillSection.subsections);
     const nextSubsectionId = getNextSubsectionId(currentSubsections);
     let nextSkillId = getNextSkillId(currentSubsections);
 
@@ -124,7 +130,7 @@ export const SkillsEditor = () => {
       ...item,
       id: nextSubsectionId,
       order: currentSubsections.length,
-      skillsSectionId: resume.skillSection.id,
+      skillsSectionId: skillSection.id,
       title: item.title,
       skills: duplicatedSkills,
     };
@@ -138,7 +144,7 @@ export const SkillsEditor = () => {
       message: 'Are you sure you want to delete this skill group?',
       confirmLabel: 'Delete',
       onConfirm: () => {
-        const nextSubsections = ensureSubsectionsArray(resume.skillSection.subsections).filter((item) => item.id !== id);
+        const nextSubsections = ensureSubsectionsArray(skillSection.subsections).filter((item) => item.id !== id);
         commitSkills(nextSubsections);
       },
     });

@@ -27,8 +27,13 @@ export const EducationEditor = () => {
   const [editingItem, setEditingItem] = useState<EducationItem | null>(null);
   const [formData, setFormData] = useState<EducationForm>(emptyFormData());
 
-  const educationSection = resume?.educationSection;
-  if (!resume || !educationSection) return null;
+  if (!resume) return null;
+  const educationSection = resume.educationSection ?? {
+    id: 0,
+    title: 'Education',
+    resumeId: resume.id,
+    items: [],
+  };
 
   const sortItems = (items?: EducationItem[] | null) => [...ensureEducationItems(items)].sort((a, b) => a.order - b.order);
   const items = sortItems(educationSection.items);

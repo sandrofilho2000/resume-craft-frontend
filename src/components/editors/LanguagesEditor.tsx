@@ -27,8 +27,13 @@ export const LanguagesEditor = () => {
     sectionId: undefined,
   });
 
-  const languagesSection = resume?.languagesSection;
-  if (!resume || !languagesSection) return null;
+  if (!resume) return null;
+  const languagesSection = resume.languagesSection ?? {
+    id: 0,
+    title: 'Languages',
+    resumeId: resume.id,
+    items: [],
+  };
 
   const sortItems = (items?: LanguageItem[] | null) => [...ensureLanguageItems(items)].sort((a, b) => a.order - b.order);
   const items = sortItems(languagesSection.items);

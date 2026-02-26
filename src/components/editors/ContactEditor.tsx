@@ -11,9 +11,14 @@ export const ContactEditor = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ContactItem | null>(null);
   const [formData, setFormData] = useState<Omit<ContactItem, 'id' | 'order' | 'sectionId'>>({ title: '', text: '', link: '' });
-  const items = resume?.contact?.items ?? [];
-
-  if (!resume?.contact) return null;
+  if (!resume) return null;
+  const contactSection = resume.contact ?? {
+    id: 0,
+    title: 'Contact',
+    resumeId: resume.id,
+    items: [],
+  };
+  const items = contactSection.items ?? [];
 
   const openAddDrawer = () => {
     setEditingItem(null);
@@ -30,7 +35,7 @@ export const ContactEditor = () => {
   const saveItem = () => {
     const normalizedLink = normalizeLink(formData.link);
 
-    const items = resume.contact.items;
+    const items = contactSection.items;
 
     const nextOrder = items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 1;
 
@@ -40,21 +45,21 @@ export const ContactEditor = () => {
       text: formData.text,
       link: normalizedLink,
       order: editingItem ? editingItem.order : nextOrder,
-      sectionId: resume.contact.id,
+      sectionId: contactSection.id,
     };
 
     const newItems = editingItem
       ? items.map(item => (item.id === editingItem.id ? newItem : item))
       : [...items, newItem];
 
-    const newContact = { ...resume.contact, items: [...newItems] }
+    const newContact = { ...contactSection, items: [...newItems] }
 
     updateContact(newContact)
     setDrawerOpen(false);
   };
 
   const duplicateItem = (itemToDuplicate: ContactItem) => {
-    const items = resume.contact.items;
+    const items = contactSection.items;
     const nextOrder = items.length > 0 ? Math.max(...items.map(i => i.order)) + 1 : 1;
     const nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
 
@@ -66,7 +71,7 @@ export const ContactEditor = () => {
 
     const newItems = [...items, duplicatedItem];
 
-    const newContact = { ...resume.contact, items: [...newItems] }
+    const newContact = { ...contactSection, items: [...newItems] }
 
     updateContact(newContact)
   };
@@ -78,25 +83,25 @@ export const ContactEditor = () => {
       confirmLabel: 'Delete',
       cancelLabel: 'Cancel',
       onConfirm: () => {
-        const items = resume.contact.items;
+        const items = contactSection.items;
         const filteredItens = items.filter(item => (item.id !== id))
-        const newContact = { ...resume.contact, items: [...filteredItens] }
+        const newContact = { ...contactSection, items: [...filteredItens] }
         updateContact(newContact)
       },
     });
   };
 
   const moveItem = (index: number, direction: "up" | "down") => {
-    if (!resume?.contact?.items) return;
+    if (!contactSection.items) return;
 
     const newIndex = direction === "up" ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= resume.contact.items.length) return;
+    if (newIndex < 0 || newIndex >= contactSection.items.length) return;
 
-    const newItems = [...resume.contact.items];
+    const newItems = [...contactSection.items];
     [newItems[index], newItems[newIndex]] = [newItems[newIndex], newItems[index]];
 
     const reordered = newItems.map((item, i) => ({ ...item, order: i + 1 }));
-    const nextContact = { ...resume.contact, items: reordered };
+    const nextContact = { ...contactSection, items: reordered };
 
     updateContact(nextContact);
   };
@@ -118,7 +123,7 @@ export const ContactEditor = () => {
       </div>
 
       <div className="space-y-3">
-        {resume.contact?.items.map((item, index) => (
+        {items.map((item, index) => (
           <div key={item.id} className="item-card">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
@@ -153,7 +158,7 @@ export const ContactEditor = () => {
           </div>
         ))}
 
-        {resume.contact?.items.length === 0 && (
+        {items.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             No contact items yet. Click "Add Contact" to create one.
           </div>
@@ -216,3 +221,4 @@ export const ContactEditor = () => {
     </div>
   ) : (<></>);
 };
+

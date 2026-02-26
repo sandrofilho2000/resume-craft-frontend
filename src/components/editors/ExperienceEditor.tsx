@@ -58,7 +58,13 @@ export const ExperienceEditor = () => {
   const [editingJob, setEditingJob] = useState<ExperienceJob | null>(null);
   const [formData, setFormData] = useState<ExperienceJobForm>(emptyFormData());
 
-  if (!resume?.experience) return null;
+  if (!resume) return null;
+  const experienceSection = resume.experience ?? {
+    id: 0,
+    title: 'Professional Background',
+    resumeId: resume.id,
+    jobs: [],
+  };
 
   const sortBullets = (bullets?: ExperienceBullet[] | null) =>
     [...ensureBulletsArray(bullets)].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -74,12 +80,12 @@ export const ExperienceEditor = () => {
       })),
     }));
 
-  const jobs = normalizeJobs(ensureJobsArray(resume.experience.jobs));
+  const jobs = normalizeJobs(ensureJobsArray(experienceSection.jobs));
 
   const commitExperience = (nextJobs: ExperienceJob[]) => {
     updateExperience({
-      ...resume.experience,
-      resumeId: resume.experience.resumeId ?? resume.id,
+      ...experienceSection,
+      resumeId: experienceSection.resumeId ?? resume.id,
       jobs: normalizeJobs(nextJobs),
     });
   };
@@ -125,7 +131,7 @@ export const ExperienceEditor = () => {
       }));
 
   const saveJob = () => {
-    const currentJobs = ensureJobsArray(resume.experience.jobs);
+    const currentJobs = ensureJobsArray(experienceSection.jobs);
     const jobId = editingJob?.id ?? getNextJobId(currentJobs);
     const bullets = normalizeBulletsForForm(jobId, formData.bullets);
 
@@ -151,7 +157,7 @@ export const ExperienceEditor = () => {
             endYear: formData.isCurrent ? null : formData.endYear,
             isCurrent: formData.isCurrent,
             order: currentJobs.length,
-            experienceSectionId: resume.experience.id,
+            experienceSectionId: experienceSection.id,
             bullets,
           },
         ];
@@ -161,7 +167,7 @@ export const ExperienceEditor = () => {
   };
 
   const duplicateJob = (job: ExperienceJob) => {
-    const currentJobs = ensureJobsArray(resume.experience.jobs);
+    const currentJobs = ensureJobsArray(experienceSection.jobs);
     const nextJobId = getNextJobId(currentJobs);
     let nextBulletId = getNextBulletId(currentJobs);
 
@@ -176,7 +182,7 @@ export const ExperienceEditor = () => {
       ...job,
       id: nextJobId,
       order: currentJobs.length,
-      experienceSectionId: resume.experience.id,
+      experienceSectionId: experienceSection.id,
       bullets: duplicatedBullets,
     };
 
@@ -189,7 +195,7 @@ export const ExperienceEditor = () => {
       message: 'Are you sure you want to delete this job experience?',
       confirmLabel: 'Delete',
       onConfirm: () => {
-        const nextJobs = ensureJobsArray(resume.experience.jobs).filter((job) => job.id !== id);
+        const nextJobs = ensureJobsArray(experienceSection.jobs).filter((job) => job.id !== id);
         commitExperience(nextJobs);
       },
     });

@@ -37,8 +37,8 @@ export const Outline = ({ onSectionChange, collapsed = false, onToggleCollapsed,
           type="button"
           onClick={onToggleCollapsed}
           className="action-btn hidden md:inline-flex"
-          aria-label={collapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
-          title={collapsed ? 'Expandir' : 'Recolher'}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand' : 'Collapse'}
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
@@ -47,8 +47,8 @@ export const Outline = ({ onSectionChange, collapsed = false, onToggleCollapsed,
           type="button"
           onClick={onCloseMobile}
           className="action-btn md:hidden ml-auto"
-          aria-label="Fechar menu lateral"
-          title="Fechar"
+          aria-label="Close sidebar"
+          title="Close"
         >
           <X className="w-4 h-4" />
         </button>
