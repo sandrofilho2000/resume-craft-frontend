@@ -158,12 +158,6 @@ const Index = () => {
                         role="button"
                         tabIndex={0}
                         onClick={() => navigate(`/resumes/${resume.id}`)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            navigate(`/resumes/${resume.id}`);
-                          }
-                        }}
                         className="item-card relative pl-4 border-l-2 border-primary/30 cursor-pointer"
                         title="Open and edit resume"
                       >
