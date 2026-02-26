@@ -3,9 +3,41 @@ import Header from '@/components/Header';
 import { Outline } from '@/components/Outline';
 import { PreviewModal } from '@/components/PreviewModal';
 import { SectionEditor } from '@/components/SectionEditor';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+
+const ResumePageSkeleton = () => (
+  <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in-0 duration-300">
+    <div className="section-header">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-6 w-8 rounded-full" />
+      </div>
+      <Skeleton className="h-10 w-32 rounded-lg" />
+    </div>
+
+    <div className="space-y-3">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={`editor-skeleton-${index}`} className="item-card">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-52" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const ResumePage = () => {
   const { id } = useParams()
@@ -77,14 +109,13 @@ const ResumePage = () => {
             onClick={() => setSidebarOpen(false)}
           />
         )}
-        {
-          resume ? (
-            <main className="flex-1 min-h-[calc(100vh-4rem)] p-4 md:p-8">
+        <main className="flex-1 min-h-[calc(100vh-4rem)] p-4 md:p-8">
               <div className="max-w-3xl mx-auto">
-                <SectionEditor />
+                {resume ? <SectionEditor /> : <ResumePageSkeleton />}
               </div>
               <button
                 onClick={openPreview}
+                disabled={!resume}
                 className='neo-button-primary flex items-center justify-center gap-2 mt-6 disabled:opacity-50 w-8 h-8 rounded-full fixed bottom-4 p-0 right-4 z-30'
               >
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0,0,256,256">
@@ -111,10 +142,6 @@ const ResumePage = () => {
                 </svg>
               </button>
             </main>
-          ) : (
-            <></>
-          )
-        }
       </div>
 
       {/* Preview Modal */}

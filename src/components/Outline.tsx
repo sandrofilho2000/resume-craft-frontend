@@ -1,5 +1,6 @@
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { sectionConfigs } from '@/lib/sectionConfigs';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { SectionKey } from '@/types/session.types';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
@@ -13,8 +14,7 @@ interface OutlineProps {
 
 export const Outline = ({ onSectionChange, collapsed = false, onToggleCollapsed, onCloseMobile }: OutlineProps) => {
   const { resume, activeSection, setActiveSection } = useResumeContext();
-
-  if (!resume) return null;
+  const skeletonItems = Array.from({ length: 8 });
 
   return (
     <div className="h-full flex flex-col">
@@ -55,46 +55,63 @@ export const Outline = ({ onSectionChange, collapsed = false, onToggleCollapsed,
       </div>
 
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-        {sectionConfigs.map(({ key, label, icon: Icon, getCount }) => {
-          const rawCount = getCount?.(resume);
-          const count = typeof rawCount === 'number' ? rawCount : null;
-          const isActive = activeSection === key;
-
-          return (
-            <button
-              key={key}
-              onClick={() => {
-                setActiveSection(key);
-                onSectionChange?.(key);
-              }}
+        {!resume &&
+          skeletonItems.map((_, index) => (
+            <div
+              key={`outline-skeleton-${index}`}
               className={cn(
-                'outline-item w-full text-left border',
-                collapsed && 'md:justify-center md:px-1 md:gap-0',
-                isActive ? 'active border-primary' : 'border-transparent',
+                'outline-item w-full',
+                collapsed && 'md:justify-center md:px-3 md:gap-0',
               )}
-              title={collapsed ? label : undefined}
+              aria-hidden="true"
             >
-              <Icon
+              <Skeleton className="h-4 w-4 rounded-full flex-shrink-0" />
+              <Skeleton className={cn('h-4 flex-1', collapsed && 'md:hidden')} />
+              <Skeleton className={cn('h-5 w-7 rounded-full', collapsed && 'md:hidden')} />
+            </div>
+          ))}
+
+        {resume &&
+          sectionConfigs.map(({ key, label, icon: Icon, getCount }) => {
+            const rawCount = getCount?.(resume);
+            const count = typeof rawCount === 'number' ? rawCount : null;
+            const isActive = activeSection === key;
+
+            return (
+              <button
+                key={key}
+                onClick={() => {
+                  setActiveSection(key);
+                  onSectionChange?.(key);
+                }}
                 className={cn(
-                  'w-4 h-4 flex-shrink-0',
-                  isActive ? 'text-primary' : 'text-muted-foreground',
+                  'outline-item w-full text-left border',
+                  collapsed && 'md:justify-center md:px-1 md:gap-0',
+                  isActive ? 'active border-primary' : 'border-transparent',
                 )}
-              />
-              <span
-                className={cn(
-                  'flex-1 text-sm font-medium',
-                  collapsed && 'md:hidden',
-                  isActive ? 'text-foreground' : 'text-muted-foreground',
-                )}
+                title={collapsed ? label : undefined}
               >
-                {label}
-              </span>
-              {count !== null && (
-                <span className={cn('count-badge', collapsed && 'md:hidden')}>{count}</span>
-              )}
-            </button>
-          );
-        })}
+                <Icon
+                  className={cn(
+                    'w-4 h-4 flex-shrink-0',
+                    isActive ? 'text-primary' : 'text-muted-foreground',
+                  )}
+                />
+                <span
+                  className={cn(
+                    'flex-1 text-sm font-medium',
+                    collapsed && 'md:hidden',
+                    isActive ? 'text-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  {label}
+                </span>
+                {count !== null && (
+                  <span className={cn('count-badge', collapsed && 'md:hidden')}>{count}</span>
+                )}
+              </button>
+            );
+          })}
       </nav>
     </div>
   );
