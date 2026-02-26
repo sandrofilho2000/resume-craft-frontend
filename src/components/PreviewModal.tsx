@@ -124,21 +124,21 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
           )}
 
           {/* Profile */}
-          {resume.profile != null && (
+          {resume.profileSection != null && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.profile.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.profileSection.title}</h2>
               <div className="space-y-2 rich-text-content">
-                <div dangerouslySetInnerHTML={{ __html: resume.profile.content }} />
+                <div dangerouslySetInnerHTML={{ __html: resume.profileSection.content }} />
               </div>
             </section>
           )}
 
           {/* Skills */}
-          {resume.skills.subsections.length > 0 && (
+          {resume.skillSection && resume.skillSection.subsections.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skills.title}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skillSection.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {resume.skills.subsections.map(group => (
+                {resume.skillSection.subsections.map(group => (
                   <div key={group.id} className="glass-card-subtle p-3">
                     <h3 className="text-sm font-medium text-primary mb-1">{group.title}</h3>
                     {/* <p className="text-sm text-muted-foreground">{group.description}</p> */}

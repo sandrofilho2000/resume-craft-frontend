@@ -1,3 +1,4 @@
+import { openConfirmActionDialog } from '@/components/ConfirmActionDialog';
 import { Drawer } from '@/components/Drawer';
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { LanguageItem, LanguageLevel } from '@/types/languages.types';
@@ -85,7 +86,14 @@ export const LanguagesEditor = () => {
   };
 
   const deleteItem = (id: number) => {
-    commitLanguages(sortItems(languagesSection.items).filter((item) => item.id !== id));
+    openConfirmActionDialog({
+      title: 'Delete language',
+      message: 'Are you sure you want to delete this language entry?',
+      confirmLabel: 'Delete',
+      onConfirm: () => {
+        commitLanguages(sortItems(languagesSection.items).filter((item) => item.id !== id));
+      },
+    });
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {

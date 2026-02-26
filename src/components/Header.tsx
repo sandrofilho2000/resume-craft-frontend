@@ -1,23 +1,17 @@
 import { useResumeContext } from '@/contexts/ResumeContext';
-import { Check, Eye, FileText, Loader2, Menu, RotateCcw, X } from 'lucide-react';
+import { Check, Eye, FileText, Loader2, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 const Header = () => {
-    const { resetToDefaults, saveStatus } = useResumeContext();
+    const { resetToDefaults, saveStatus, sidebarOpen, toggleSidebarOpen } = useResumeContext();
     const { id } = useParams()
     const [previewOpen, setPreviewOpen] = useState(false);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         console.log("Header saveStatus:", saveStatus)
     }, [saveStatus])
 
-    const handleReset = () => {
-        if (window.confirm('Are you sure you want to reset? This will clear all your data and restore defaults.')) {
-            resetToDefaults();
-        }
-    };
 
     return (
         <header className="sticky top-0 z-30 glass-card border-b border-border rounded-none">
@@ -25,7 +19,7 @@ const Header = () => {
                 {/* Left: Logo & Title */}
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                        onClick={toggleSidebarOpen}
                         className="action-btn md:hidden"
                     >
                         {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -66,13 +60,6 @@ const Header = () => {
                         >
                             <Eye className="w-4 h-4" />
                             <span className="hidden sm:inline">Preview</span>
-                        </button>
-                        <button
-                            onClick={handleReset}
-                            className="neo-button flex items-center gap-2 text-sm text-muted-foreground"
-                        >
-                            <RotateCcw className="w-4 h-4" />
-                            <span className="hidden sm:inline">Reset</span>
                         </button>
                     </div>
                 )}

@@ -1,8 +1,9 @@
 import { Drawer } from '@/components/Drawer';
+import { openConfirmActionDialog } from '@/components/ConfirmActionDialog';
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { SkillsItem, SkillsSubSection } from '@/types/skills.types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Plus, PlusCircle, Save, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type SkillGroupForm = {
   title: string;
@@ -19,9 +20,13 @@ export const SkillsEditor = () => {
   const [editingItem, setEditingItem] = useState<SkillsSubSection | null>(null);
   const [formData, setFormData] = useState<SkillGroupForm>({ title: '', skills: [] });
 
-  if (!resume?.skills) return null;
+  useEffect(()=>{
+    console.log("🚀 ~ SkillsEditor ~ resume:", resume)
+  }, [resume])
 
-  const subsections = ensureSubsectionsArray(resume.skills.subsections);
+  if (!resume?.skillSection) return null;
+
+  const subsections = ensureSubsectionsArray(resume.skillSection.subsections);
 
   const sortSkills = (skills?: SkillsItem[] | null) => [...ensureSkillsArray(skills)].sort((a, b) => a.order - b.order);
   const normalizeSubsections = (items: SkillsSubSection[]) =>
@@ -33,8 +38,8 @@ export const SkillsEditor = () => {
 
   const commitSkills = (nextSubsections: SkillsSubSection[]) => {
     updateSkills({
-      ...resume.skills,
-      resumeId: resume.skills.resumeId ?? resume.id,
+      ...resume.skillSection,
+      resumeId: resume.skillSection.resumeId ?? resume.id,
       subsections: normalizeSubsections(nextSubsections),
     });
   };
@@ -73,7 +78,7 @@ export const SkillsEditor = () => {
       }));
 
   const saveItem = () => {
-    const currentSubsections = ensureSubsectionsArray(resume.skills.subsections);
+    const currentSubsections = ensureSubsectionsArray(resume.skillSection.subsections);
     const groupId = editingItem?.id ?? getNextSubsectionId(currentSubsections);
     const normalizedSkills = normalizeSkillsForGroup(groupId, formData.skills);
 
@@ -93,7 +98,7 @@ export const SkillsEditor = () => {
             id: groupId,
             title: formData.title,
             order: currentSubsections.length,
-            skillsSectionId: resume.skills.id,
+            skillsSectionId: resume.skillSection.id,
             skills: normalizedSkills,
           },
         ];
@@ -104,7 +109,7 @@ export const SkillsEditor = () => {
   };
 
   const duplicateItem = (item: SkillsSubSection) => {
-    const currentSubsections = ensureSubsectionsArray(resume.skills.subsections);
+    const currentSubsections = ensureSubsectionsArray(resume.skillSection.subsections);
     const nextSubsectionId = getNextSubsectionId(currentSubsections);
     let nextSkillId = getNextSkillId(currentSubsections);
 
@@ -119,7 +124,7 @@ export const SkillsEditor = () => {
       ...item,
       id: nextSubsectionId,
       order: currentSubsections.length,
-      skillsSectionId: resume.skills.id,
+      skillsSectionId: resume.skillSection.id,
       title: item.title,
       skills: duplicatedSkills,
     };
@@ -128,8 +133,15 @@ export const SkillsEditor = () => {
   };
 
   const deleteItem = (id: number) => {
-    const nextSubsections = ensureSubsectionsArray(resume.skills.subsections).filter((item) => item.id !== id);
-    commitSkills(nextSubsections);
+    openConfirmActionDialog({
+      title: 'Delete skill group',
+      message: 'Are you sure you want to delete this skill group?',
+      confirmLabel: 'Delete',
+      onConfirm: () => {
+        const nextSubsections = ensureSubsectionsArray(resume.skillSection.subsections).filter((item) => item.id !== id);
+        commitSkills(nextSubsections);
+      },
+    });
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {
@@ -167,12 +179,19 @@ export const SkillsEditor = () => {
   };
 
   const removeSkill = (id: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      skills: prev.skills
-        .filter((skill) => skill.id !== id)
-        .map((skill, index) => ({ ...skill, order: index })),
-    }));
+    openConfirmActionDialog({
+      title: 'Delete skill',
+      message: 'Remove this skill from the group?',
+      confirmLabel: 'Delete',
+      onConfirm: () => {
+        setFormData((prev) => ({
+          ...prev,
+          skills: prev.skills
+            .filter((skill) => skill.id !== id)
+            .map((skill, index) => ({ ...skill, order: index })),
+        }));
+      },
+    });
   };
 
   const moveSkill = (index: number, direction: 'up' | 'down') => {
@@ -317,4 +336,3 @@ export const SkillsEditor = () => {
     </div>
   );
 };
-

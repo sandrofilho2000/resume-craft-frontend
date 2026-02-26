@@ -1,11 +1,10 @@
 import { Drawer } from '@/components/Drawer';
+import { openConfirmActionDialog } from '@/components/ConfirmActionDialog';
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { isValidEmail, normalizeLink } from '@/lib/validation';
 import { ContactItem } from '@/types/contact.types';
 import { ChevronDown, ChevronUp, Copy, Edit2, Link as LinkIcon, Plus, Save, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
 
 export const ContactEditor = () => {
   const { resume, updateContact, saveStatus } = useResumeContext();
@@ -73,23 +72,17 @@ export const ContactEditor = () => {
   };
 
   const deleteItem = (id: number) => {
-    confirmAlert({
+    openConfirmActionDialog({
       title: 'Confirm deletion',
       message: 'Are you sure you want to delete this contact item?',
-      buttons: [
-        {
-          label: 'Yes',
-          onClick: () => {
-            const items = resume.contact.items;
-            const filteredItens = items.filter(item => (item.id !== id))
-            const newContact = { ...resume.contact, items: [...filteredItens] }
-            updateContact(newContact)
-          },
-        },
-        {
-          label: 'No',
-        },
-      ],
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+      onConfirm: () => {
+        const items = resume.contact.items;
+        const filteredItens = items.filter(item => (item.id !== id))
+        const newContact = { ...resume.contact, items: [...filteredItens] }
+        updateContact(newContact)
+      },
     });
   };
 

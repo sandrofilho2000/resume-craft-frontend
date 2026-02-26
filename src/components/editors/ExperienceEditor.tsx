@@ -1,3 +1,4 @@
+import { openConfirmActionDialog } from '@/components/ConfirmActionDialog';
 import { Drawer } from '@/components/Drawer';
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { ExperienceBullet, ExperienceJob } from '@/types/experience.types';
@@ -183,8 +184,15 @@ export const ExperienceEditor = () => {
   };
 
   const deleteJob = (id: number) => {
-    const nextJobs = ensureJobsArray(resume.experience.jobs).filter((job) => job.id !== id);
-    commitExperience(nextJobs);
+    openConfirmActionDialog({
+      title: 'Delete job',
+      message: 'Are you sure you want to delete this job experience?',
+      confirmLabel: 'Delete',
+      onConfirm: () => {
+        const nextJobs = ensureJobsArray(resume.experience.jobs).filter((job) => job.id !== id);
+        commitExperience(nextJobs);
+      },
+    });
   };
 
   const moveJob = (index: number, direction: 'up' | 'down') => {
@@ -222,10 +230,17 @@ export const ExperienceEditor = () => {
   };
 
   const removeBullet = (id: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      bullets: prev.bullets.filter((bullet) => bullet.id !== id).map((bullet, index) => ({ ...bullet, order: index })),
-    }));
+    openConfirmActionDialog({
+      title: 'Delete bullet point',
+      message: 'Remove this bullet point from the job?',
+      confirmLabel: 'Delete',
+      onConfirm: () => {
+        setFormData((prev) => ({
+          ...prev,
+          bullets: prev.bullets.filter((bullet) => bullet.id !== id).map((bullet, index) => ({ ...bullet, order: index })),
+        }));
+      },
+    });
   };
 
   const moveBullet = (index: number, direction: 'up' | 'down') => {

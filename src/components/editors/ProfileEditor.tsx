@@ -18,7 +18,7 @@ export const ProfileEditor = () => {
 
   const editorRef = useRef<HTMLDivElement | null>(null);
 
-  const profile = resume?.profile;
+  const profile = resume?.profileSection;
 
   const getEditorHtml = () => {
     if (!editorRef.current) return "";

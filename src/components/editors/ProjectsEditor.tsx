@@ -1,3 +1,4 @@
+import { openConfirmActionDialog } from '@/components/ConfirmActionDialog';
 import { Drawer } from '@/components/Drawer';
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { ProjectItem } from '@/types/projects.types';
@@ -108,8 +109,15 @@ export const ProjectsEditor = () => {
   };
 
   const deleteItem = (id: number) => {
-    const nextItems = sortProjects(projectsSection.projects).filter((item) => item.id !== id);
-    commitProjects(nextItems);
+    openConfirmActionDialog({
+      title: 'Delete project',
+      message: 'Are you sure you want to delete this project?',
+      confirmLabel: 'Delete',
+      onConfirm: () => {
+        const nextItems = sortProjects(projectsSection.projects).filter((item) => item.id !== id);
+        commitProjects(nextItems);
+      },
+    });
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {

@@ -1,8 +1,8 @@
 // src/api/resume.api.ts
 
 import { ContactSection } from '@/types/contact.types';
-import { ExperienceSection } from '@/types/experience.types';
 import { EducationSection } from '@/types/education.types';
+import { ExperienceSection } from '@/types/experience.types';
 import { LanguagesSection } from '@/types/languages.types';
 import { ProfileSection } from '@/types/profile.types';
 import { ProjectsSection } from '@/types/projects.types';
@@ -28,9 +28,11 @@ export type EditLanguagesDTO = Partial<LanguagesSection>;
 export async function getResumeById(id: number, mode='') {
   let result = await http<Resume>(`/resume/${id}/${mode}`);
   let obj:any;
-  if (mode !== 'header') {
+  if (mode !== 'header' && mode) {
     obj = {}
     const keyMap: Record<string, string> = {
+      profile: 'profileSection',
+      skills: 'skillSection',
       projects: 'projectsSection',
       education: 'educationSection',
       languages: 'languagesSection',
@@ -69,30 +71,35 @@ export async function editProfile(resumeId: number, dto: EditProfileDTO) {
     body: dto,
   });
 }
+
 export async function editSkills(resumeId: number, dto: EditSkillsDTO) {
   return http<SkillsSection, EditSkillsDTO>(`/resume/${resumeId}/skills`, {
     method: 'POST',
     body: dto,
   });
 }
+
 export async function editExperience(resumeId: number, dto: EditExperienceDTO) {
   return http<ExperienceSection, EditExperienceDTO>(`/resume/${resumeId}/experience`, {
     method: 'POST',
     body: dto,
   });
 }
+
 export async function editProjects(resumeId: number, dto: EditProjectsDTO) {
   return http<ProjectsSection, EditProjectsDTO>(`/resume/${resumeId}/projects`, {
     method: 'POST',
     body: dto,
   });
 }
+
 export async function editEducation(resumeId: number, dto: EditEducationDTO) {
   return http<EducationSection, EditEducationDTO>(`/resume/${resumeId}/education`, {
     method: 'POST',
     body: dto,
   });
 }
+
 export async function editLanguages(resumeId: number, dto: EditLanguagesDTO) {
   return http<LanguagesSection, EditLanguagesDTO>(`/resume/${resumeId}/languages`, {
     method: 'POST',

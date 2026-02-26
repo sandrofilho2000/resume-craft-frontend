@@ -26,12 +26,19 @@ interface useResumeReturn {
   saveStatus: 'idle' | 'saving' | 'saved';
   activeSection: SectionKey;
   setActiveSection: (section: SectionKey) => void;
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebarOpen: () => void;
+  sidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 export const useResume = (): useResumeReturn => {
   const [resume, setResume] = useState<Resume>();
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [activeSection, setActiveSection] = useState<SectionKey>('header');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastContactReqIdRef = useRef(0);
@@ -122,7 +129,7 @@ export const useResume = (): useResumeReturn => {
     setResume(prev => {
       if (!prev) return prev as any;
 
-      const current = prev.profile ?? {
+      const current = prev.profileSection ?? {
         id: 0,
         title: "Professional Profile",
         content: "",
@@ -135,7 +142,7 @@ export const useResume = (): useResumeReturn => {
         resumeId: updates.resumeId ?? current.resumeId,
       };
 
-      return { ...prev, profile: nextProfile };
+      return { ...prev, profileSection: nextProfile };
     });
 
     const reqId = ++lastProfileReqIdRef.current;
@@ -147,7 +154,7 @@ export const useResume = (): useResumeReturn => {
 
       setResume(prev => {
         if (!prev) return prev as any;
-        return { ...prev, profile: result };
+        return { ...prev, profileSection: result };
       });
 
       setSaveStatus("saved");
@@ -163,7 +170,7 @@ export const useResume = (): useResumeReturn => {
     setResume(prev => {
       if (!prev) return prev as any;
 
-      const current = prev.skills ?? {
+      const current = prev.skillSection ?? {
         id: 0,
         title: "Skills",
         resumeId: prev.id,
@@ -177,7 +184,7 @@ export const useResume = (): useResumeReturn => {
         subsections: updates.subsections ?? current.subsections ?? [],
       };
 
-      return { ...prev, skills: nextSkills };
+      return { ...prev, skillSection: nextSkills };
     });
 
     const reqId = ++lastSkillsReqIdRef.current;
@@ -189,7 +196,7 @@ export const useResume = (): useResumeReturn => {
 
       setResume(prev => {
         if (!prev) return prev as any;
-        const previousSubsections = Array.isArray(prev.skills?.subsections) ? prev.skills.subsections : [];
+        const previousSubsections = Array.isArray(prev.skillSection?.subsections) ? prev.skillSection.subsections : [];
         const previousById = new Map(previousSubsections.map((sub) => [sub.id, sub]));
 
         const hasResultSubsections = Array.isArray(result?.subsections);
@@ -211,8 +218,8 @@ export const useResume = (): useResumeReturn => {
 
         return {
           ...prev,
-          skills: {
-            ...prev.skills,
+          skillSection: {
+            ...prev.skillSection,
             ...result,
             subsections: mergedSubsections,
           },
@@ -484,6 +491,10 @@ export const useResume = (): useResumeReturn => {
     setActiveSection('header');
   }, []);
 
+  const toggleSidebarOpen = useCallback(() => {
+    setSidebarOpen((prev) => !prev);
+  }, []);
+
   return {
     resume,
     updateResume,
@@ -499,5 +510,10 @@ export const useResume = (): useResumeReturn => {
     saveStatus,
     activeSection,
     setActiveSection,
+    sidebarOpen,
+    setSidebarOpen,
+    toggleSidebarOpen,
+    sidebarCollapsed,
+    setSidebarCollapsed,
   };
 };

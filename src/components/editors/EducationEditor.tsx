@@ -1,3 +1,4 @@
+import { openConfirmActionDialog } from '@/components/ConfirmActionDialog';
 import { Drawer } from '@/components/Drawer';
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { EducationItem } from '@/types/education.types';
@@ -103,7 +104,14 @@ export const EducationEditor = () => {
   };
 
   const deleteItem = (id: number) => {
-    commitEducation(sortItems(educationSection.items).filter((item) => item.id !== id));
+    openConfirmActionDialog({
+      title: 'Delete education item',
+      message: 'Are you sure you want to delete this education entry?',
+      confirmLabel: 'Delete',
+      onConfirm: () => {
+        commitEducation(sortItems(educationSection.items).filter((item) => item.id !== id));
+      },
+    });
   };
 
   const moveItem = (index: number, direction: 'up' | 'down') => {

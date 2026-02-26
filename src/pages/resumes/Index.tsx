@@ -14,12 +14,16 @@ const ResumePage = () => {
     resume,
     setResume,
     activeSection,
+    sidebarOpen,
+    setSidebarOpen,
+    sidebarCollapsed,
+    setSidebarCollapsed,
   } = useResumeContext();
 
 
   useEffect(() => {
     if (id) {
-      getResumeById(Number(id), activeSection).then((result) => {
+      getResumeById(Number(id)).then((result) => {
         setResume((prev) => {
           if (!prev) return result as any;
 
@@ -28,17 +32,14 @@ const ResumePage = () => {
               ? { ...prev, ...result }
               : { ...result, ...prev };
 
-          console.log("ResumePage merged resume:", newResume)
-          return newResume;
+          return result;
         })
       })
     }
-  }, [id, activeSection])
+  }, [id])
 
 
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -50,16 +51,21 @@ const ResumePage = () => {
         <aside
           className={`
             fixed md:sticky top-16 left-0 z-20 
-            w-64 h-[calc(100vh-4rem)] 
+            h-[calc(100vh-4rem)] w-[82vw] max-w-[320px] md:max-w-none
             glass-card border-r border-border rounded-none
-            transition-transform duration-300 ease-in-out
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            transition-all duration-300 ease-in-out
+            md:translate-x-0
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            ${sidebarCollapsed ? 'md:w-[76px]' : 'md:w-64'}
           `}
         >
           <Outline
             onSectionChange={() => {
               setSidebarOpen(false);
             }}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
+            onCloseMobile={() => setSidebarOpen(false)}
           />
         </aside>
 
