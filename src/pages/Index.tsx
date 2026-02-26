@@ -10,7 +10,7 @@ import { Briefcase, Edit2, Search, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const PAGE_SIZE = 1;
+const PAGE_SIZE = 10;
 
 const ResumeListSkeleton = () => (
   <div className="space-y-6">
