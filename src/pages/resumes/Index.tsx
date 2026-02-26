@@ -4,7 +4,7 @@ import { Outline } from '@/components/Outline';
 import { PreviewModal } from '@/components/PreviewModal';
 import { SectionEditor } from '@/components/SectionEditor';
 import { useResumeContext } from '@/contexts/ResumeContext';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 const ResumePage = () => {
@@ -18,6 +18,9 @@ const ResumePage = () => {
     setSidebarOpen,
     sidebarCollapsed,
     setSidebarCollapsed,
+    previewOpen,
+    closePreview,
+    openPreview,
   } = useResumeContext();
 
 
@@ -38,8 +41,6 @@ const ResumePage = () => {
     }
   }, [id])
 
-
-  const [previewOpen, setPreviewOpen] = useState(false);
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -82,7 +83,10 @@ const ResumePage = () => {
               <div className="max-w-3xl mx-auto">
                 <SectionEditor />
               </div>
-              <button className='neo-button-primary flex items-center justify-center gap-2 mt-6 disabled:opacity-50 w-8 h-8 rounded-full fixed bottom-4 p-0 right-4 z-30'>
+              <button
+                onClick={openPreview}
+                className='neo-button-primary flex items-center justify-center gap-2 mt-6 disabled:opacity-50 w-8 h-8 rounded-full fixed bottom-4 p-0 right-4 z-30'
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0,0,256,256">
                   <g
                     fill="#ffffff"
@@ -116,7 +120,7 @@ const ResumePage = () => {
       {/* Preview Modal */}
       <PreviewModal
         isOpen={previewOpen}
-        onClose={() => setPreviewOpen(false)}
+        onClose={closePreview}
       />
     </div>
   );

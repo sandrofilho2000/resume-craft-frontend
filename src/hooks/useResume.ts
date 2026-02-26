@@ -31,6 +31,10 @@ interface useResumeReturn {
   toggleSidebarOpen: () => void;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+  previewOpen: boolean;
+  setPreviewOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  openPreview: () => void;
+  closePreview: () => void;
 }
 
 export const useResume = (): useResumeReturn => {
@@ -39,6 +43,7 @@ export const useResume = (): useResumeReturn => {
   const [activeSection, setActiveSection] = useState<SectionKey>('header');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastContactReqIdRef = useRef(0);
@@ -495,6 +500,14 @@ export const useResume = (): useResumeReturn => {
     setSidebarOpen((prev) => !prev);
   }, []);
 
+  const openPreview = useCallback(() => {
+    setPreviewOpen(true);
+  }, []);
+
+  const closePreview = useCallback(() => {
+    setPreviewOpen(false);
+  }, []);
+
   return {
     resume,
     updateResume,
@@ -515,5 +528,9 @@ export const useResume = (): useResumeReturn => {
     toggleSidebarOpen,
     sidebarCollapsed,
     setSidebarCollapsed,
+    previewOpen,
+    setPreviewOpen,
+    openPreview,
+    closePreview,
   };
 };

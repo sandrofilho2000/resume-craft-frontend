@@ -13,6 +13,16 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
   const { toast } = useToast();
   const { resume } = useResumeContext();
+  const contactItems = resume?.contact?.items ?? [];
+  const skillGroups = resume?.skillSection?.subsections ?? [];
+  const experienceJobs = resume?.experience?.jobs ?? [];
+  const projects = resume?.projectsSection?.projects ?? [];
+  const educationItems = resume?.educationSection?.items ?? [];
+  const languageItems = resume?.languagesSection?.items ?? [];
+
+  const userInfo = {
+    name: "Sandro Filho"
+  }
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -92,22 +102,19 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
         <div className="p-8 space-y-8">
           {/* Header */}
           <header className="text-center pb-6 border-b border-border">
-            <h1 className="text-3xl font-bold text-foreground mb-2">{resume.header_name}</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{userInfo.name}</h1>
             <p className="text-xl text-primary mb-1">{resume.header_role}</p>
-            {resume.job_title && resume.company_name && (
-              <p className="text-muted-foreground">{resume.job_title} at {resume.company_name}</p>
-            )}
           </header>
 
           {/* Contact */}
-          {resume.contact.items.length > 0 && (
+          {resume.contact && contactItems.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <Mail className="w-5 h-5 text-primary" />
                 {resume.contact.title}
               </h2>
               <div className="flex flex-wrap gap-4">
-                {resume.contact.items.map(item => (
+                {contactItems.map(item => (
                   <div key={item.id} className="text-sm">
                     <span className="text-muted-foreground">{item.title}: </span>
                     {item.link ? (
@@ -134,13 +141,16 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
           )}
 
           {/* Skills */}
-          {resume.skillSection && resume.skillSection.subsections.length > 0 && (
+          {resume.skillSection && skillGroups.length > 0 && (
             <section>
               <h2 className="text-lg font-semibold text-foreground mb-3">{resume.skillSection.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {resume.skillSection.subsections.map(group => (
+                {skillGroups.map(group => (
                   <div key={group.id} className="glass-card-subtle p-3">
                     <h3 className="text-sm font-medium text-primary mb-1">{group.title}</h3>
+                    {
+                      group.skills.map((skill, index)=> (<span className='text-sm text-muted-foreground'>{skill.name}{index !== group.skills.length -1 }, </span>))
+                    }
                     {/* <p className="text-sm text-muted-foreground">{group.description}</p> */}
                   </div>
                 ))}
@@ -149,14 +159,14 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
           )}
 
           {/* Experience */}
-          {resume.experience.jobs.length > 0 && (
+          {resume.experience && experienceJobs.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-4">
                 <Briefcase className="w-5 h-5 text-primary" />
                 {resume.experience.title}
               </h2>
               <div className="space-y-6">
-                {resume.experience.jobs.map(job => (
+                {experienceJobs.map(job => (
                   <div key={job.id} className="relative pl-4 border-l-2 border-primary/30">
                     <div className="mb-2">
                       <h3 className="text-base font-semibold text-foreground">{job.role}</h3>
@@ -165,9 +175,9 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
                         {formatDate(job.startMonth, job.startYear, false)} — {formatDate(job.endMonth, job.endYear, job.isCurrent)}
                       </p>
                     </div>
-                    {job.bullets.length > 0 && (
+                    {(job.bullets?.length ?? 0) > 0 && (
                       <ul className="space-y-1">
-                        {job.bullets.map(bullet => (
+                        {(job.bullets ?? []).map(bullet => (
                           <li key={bullet.id} className="text-sm text-muted-foreground flex items-start gap-2">
                             <span className="text-primary mt-1.5">•</span>
                             <span>{bullet.text}</span>
@@ -182,11 +192,11 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
           )}
 
           {/* Projects */}
-          {resume.projectsSection.projects.length > 0 && (
+          {resume.projectsSection && projects.length > 0 && (
             <section>
               <h2 className="text-lg font-semibold text-foreground mb-3">{resume.projectsSection.title}</h2>
               <div className="grid gap-3 md:grid-cols-2">
-                {resume.projectsSection.projects.map(project => (
+                {projects.map(project => (
                   <div key={project.id} className="glass-card-subtle p-4">
                     <h3 className="text-sm font-semibold text-foreground mb-1">{project.name}</h3>
                     <div
@@ -200,14 +210,14 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
           )}
 
           {/* Education */}
-          {resume.educationSection.items.length > 0 && (
+          {resume.educationSection && educationItems.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <GraduationCap className="w-5 h-5 text-primary" />
                 {resume.educationSection.title}
               </h2>
               <div className="space-y-3">
-                {resume.educationSection.items.map(item => (
+                {educationItems.map(item => (
                   <div key={item.id} className="flex justify-between items-start">
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">{item.institution}</h3>
@@ -223,14 +233,14 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
           )}
 
           {/* Languages */}
-          {resume.languagesSection.items.length > 0 && (
+          {resume.languagesSection && languageItems.length > 0 && (
             <section>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground mb-3">
                 <Globe className="w-5 h-5 text-primary" />
                 {resume.languagesSection.title}
               </h2>
               <div className="flex flex-wrap gap-3">
-                {resume.languagesSection.items.map(item => (
+                {languageItems.map(item => (
                   <div key={item.id} className="glass-card-subtle px-3 py-2">
                     <span className="text-sm font-medium text-foreground">{item.language}</span>
                     <span className="text-xs text-muted-foreground ml-2 capitalize">({item.level})</span>

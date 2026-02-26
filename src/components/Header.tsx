@@ -1,12 +1,11 @@
 import { useResumeContext } from '@/contexts/ResumeContext';
 import { Check, Eye, FileText, Loader2, Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 const Header = () => {
-    const { resetToDefaults, saveStatus, sidebarOpen, toggleSidebarOpen } = useResumeContext();
+    const { saveStatus, sidebarOpen, toggleSidebarOpen, openPreview } = useResumeContext();
     const { id } = useParams()
-    const [previewOpen, setPreviewOpen] = useState(false);
 
     useEffect(() => {
         console.log("Header saveStatus:", saveStatus)
@@ -55,7 +54,7 @@ const Header = () => {
                 {id != null && (
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => setPreviewOpen(true)}
+                            onClick={openPreview}
                             className="neo-button-primary flex items-center gap-2 text-sm"
                         >
                             <Eye className="w-4 h-4" />
