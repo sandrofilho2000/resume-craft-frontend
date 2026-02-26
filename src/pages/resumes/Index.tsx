@@ -56,7 +56,7 @@ const ResumePage = () => {
             transition-all duration-300 ease-in-out
             md:translate-x-0
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-            ${sidebarCollapsed ? 'md:w-[76px]' : 'md:w-64'}
+            ${sidebarCollapsed ? 'md:w-[60px]' : 'md:w-64'}
           `}
         >
           <Outline

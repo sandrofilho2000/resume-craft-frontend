@@ -27,10 +27,10 @@ interface useResumeReturn {
   activeSection: SectionKey;
   setActiveSection: (section: SectionKey) => void;
   sidebarOpen: boolean;
-  setSidebarOpen: (open: boolean) => void;
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   toggleSidebarOpen: () => void;
   sidebarCollapsed: boolean;
-  setSidebarCollapsed: (collapsed: boolean) => void;
+  setSidebarCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const useResume = (): useResumeReturn => {
