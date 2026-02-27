@@ -1,11 +1,12 @@
 import { getResumeById } from '@/api/resume.api';
+import { AIChatModal } from '@/components/AIChatModal';
 import Header from '@/components/Header';
 import { Outline } from '@/components/Outline';
 import { PreviewModal } from '@/components/PreviewModal';
 import { SectionEditor } from '@/components/SectionEditor';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useResumeContext } from '@/contexts/ResumeContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 const ResumePageSkeleton = () => (
@@ -41,6 +42,7 @@ const ResumePageSkeleton = () => (
 
 const ResumePage = () => {
   const { id } = useParams()
+  const [aiChatOpen, setAiChatOpen] = useState(false);
 
   const {
     resume,
@@ -114,9 +116,9 @@ const ResumePage = () => {
                 {resume ? <SectionEditor /> : <ResumePageSkeleton />}
               </div>
               <button
-                onClick={openPreview}
-                disabled={!resume}
+                onClick={() => setAiChatOpen((prev) => !prev)}
                 className='neo-button-primary flex items-center justify-center gap-2 mt-6 disabled:opacity-50 w-8 h-8 rounded-full fixed bottom-4 p-0 right-4 z-30'
+                aria-label={aiChatOpen ? 'Fechar chat de IA' : 'Abrir chat de IA'}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0,0,256,256">
                   <g
@@ -148,6 +150,11 @@ const ResumePage = () => {
       <PreviewModal
         isOpen={previewOpen}
         onClose={closePreview}
+      />
+
+      <AIChatModal
+        isOpen={aiChatOpen}
+        onClose={() => setAiChatOpen(false)}
       />
     </div>
   );

@@ -176,7 +176,7 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
                   <h2 className="text-base font-bold uppercase tracking-wide" style={{ color: PREVIEW_HEADING }}>
                     {resume.profileSection.title}
                   </h2>
-                  <div className="rich-text-content text-[13px] leading-5 [&_*]:!text-[#444440] [&_a]:!underline" style={{ color: PREVIEW_BODY }}>
+                  <div className="rich-text-content resume-rich-text text-[13px] leading-5 [&_*]:!text-[#444440] [&_a]:!underline" style={{ color: PREVIEW_BODY }}>
                     <div dangerouslySetInnerHTML={{ __html: resume.profileSection.content }} />
                   </div>
                 </section>
@@ -218,7 +218,7 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
                           </p>
                         </div>
                         {(job.bullets?.length ?? 0) > 0 && (
-                          <ul className="list-disc pl-4 space-y-0.5 text-[13px] leading-5" style={{ color: PREVIEW_BODY }}>
+                          <ul className="resume-bullet-list space-y-0.5 text-[13px] leading-5" style={{ color: PREVIEW_BODY }}>
                             {(job.bullets ?? []).map((bullet) => (
                               <li key={bullet.id}>{bullet.text}</li>
                             ))}
@@ -240,7 +240,7 @@ export const PreviewModal = ({ isOpen, onClose }: PreviewModalProps) => {
                       <div key={project.id}>
                         <h3 className="text-[13px] font-semibold" style={{ color: PREVIEW_HEADING }}>{project.name}</h3>
                         <div
-                          className="text-[13px] rich-text-content leading-5 [&_*]:!text-[#444440] [&_a]:!underline"
+                          className="text-[13px] rich-text-content resume-rich-text leading-5 [&_*]:!text-[#444440] [&_a]:!underline"
                           style={{ color: PREVIEW_BODY }}
                           dangerouslySetInnerHTML={{ __html: project.description || '' }}
                         />

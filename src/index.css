@@ -253,6 +253,78 @@
     @apply list-decimal pl-5 text-muted-foreground;
   }
 
+  /* Stable rich text rendering for resume preview/PDF export */
+  .resume-rich-text p {
+    margin: 0;
+  }
+
+  .resume-rich-text p + p {
+    margin-top: 0.25rem;
+  }
+
+  .resume-rich-text ul,
+  .resume-rich-text ol {
+    margin: 0.15rem 0 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .resume-rich-text li {
+    position: relative;
+    margin: 0.05rem 0;
+    padding-left: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .resume-rich-text ul > li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0.02rem;
+  }
+
+  .resume-rich-text ol {
+    counter-reset: resume-ordered-list;
+  }
+
+  .resume-rich-text ol > li::before {
+    counter-increment: resume-ordered-list;
+    content: counter(resume-ordered-list) ".";
+    position: absolute;
+    left: 0;
+    top: 0.02rem;
+    font-size: 0.95em;
+  }
+
+  .resume-rich-text s,
+  .resume-rich-text strike,
+  .resume-rich-text del {
+    text-decoration: none;
+  }
+
+  .resume-rich-text [style*="line-through"] {
+    text-decoration: none !important;
+  }
+
+  .resume-bullet-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .resume-bullet-list li {
+    position: relative;
+    margin: 0.05rem 0;
+    padding-left: 0.85rem;
+  }
+
+  .resume-bullet-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0.02rem;
+  }
+
   /* Outline section item */
   .outline-item {
     @apply flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200;
